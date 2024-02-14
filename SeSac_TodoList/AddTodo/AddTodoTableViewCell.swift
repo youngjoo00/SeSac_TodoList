@@ -1,0 +1,81 @@
+//
+//  AddTodoTableViewCell.swift
+//  SeSac_TodoList
+//
+//  Created by youngjoo on 2/14/24.
+//
+
+import UIKit
+import SnapKit
+import Then
+
+class AddTodoTableViewCell: BaseTableViewCell {
+    
+    let titleTextField = UserInputTextField().then {
+        $0.setPlaceholder(placeholder: "제목", color: .systemGray5)
+        $0.font = .systemFont(ofSize: 18)
+    }
+    
+    let lineView = UIView().then {
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = UIColor.systemGray2.cgColor
+    }
+    
+    let memoTextView = UITextView().then {
+        $0.backgroundColor = .clear
+        $0.text = "메모"
+        $0.textColor = .systemGray5
+        $0.font = .systemFont(ofSize: 18)
+        $0.textContainerInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
+    }
+    
+    override func configureHierarchy() {
+        [
+            titleTextField,
+            lineView,
+            memoTextView,
+        ].forEach { contentView.addSubview($0)}
+    }
+    
+    override func configureLayout() {
+        titleTextField.snp.makeConstraints { make in
+            make.top.horizontalEdges.equalTo(contentView)
+            make.height.equalTo(44)
+        }
+        
+        lineView.snp.makeConstraints { make in
+            make.top.equalTo(titleTextField.snp.bottom)
+            make.leading.equalTo(contentView).inset(16)
+            make.trailing.equalTo(contentView)
+            make.height.equalTo(1)
+        }
+        
+        memoTextView.snp.makeConstraints { make in
+            make.top.equalTo(lineView.snp.bottom).offset(5)
+            make.horizontalEdges.bottom.equalTo(contentView)
+            make.height.equalTo(100)
+        }
+    }
+    
+    override func configureView() {
+        memoTextView.delegate = self
+        
+    }
+}
+
+extension AddTodoTableViewCell: UITextViewDelegate {
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == .systemGray5 {
+            textView.text = nil
+            textView.textColor = .white
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "메모"
+            textView.textColor = .systemGray5
+        }
+    }
+}
