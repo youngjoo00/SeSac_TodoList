@@ -7,7 +7,7 @@
 
 import UIKit
 
-class DateViewController: BaseViewController {
+final class DateViewController: BaseViewController {
     
     let mainView = DateView()
     

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TagViewController: BaseViewController {
+final class TagViewController: BaseViewController {
     
     let mainView = TagView()
     

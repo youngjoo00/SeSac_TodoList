@@ -13,7 +13,9 @@ final class TodoListCollectionViewCell: BaseCollectionViewCell {
     
     let mainImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
+        $0.tintColor = .white
     }
+    
     let countLabel = WhiteTitleLabel().then {
         $0.font = .boldSystemFont(ofSize: 30)
     }

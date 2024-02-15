@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
-class TagView: BaseView {
+final class TagView: BaseView {
     
     let navTitle = WhiteTitleLabel().then {
         $0.text = "태그"

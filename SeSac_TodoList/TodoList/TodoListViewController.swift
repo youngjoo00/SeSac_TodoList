@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 final class TodoListViewController: BaseViewController {
 
@@ -15,6 +16,37 @@ final class TodoListViewController: BaseViewController {
         case all = "전체"
         case flagSign = "깃발 표시"
         case complete = "완료됨"
+        
+        var image: UIImage? {
+            switch self {
+            case .today:
+                return UIImage(systemName: "calendar")
+            case .expected:
+                return UIImage(systemName: "calendar.badge.exclamationmark")
+            case .all:
+                return UIImage(systemName: "apple.logo")
+            case .flagSign:
+                return UIImage(systemName: "flag.fill")
+            case .complete:
+                return UIImage(systemName: "checkmark")
+            }
+        }
+        
+        var viewController: UIViewController {
+            switch self {
+            case .today:
+                return ViewController()
+            case .expected:
+                return ViewController()
+            case .all:
+                return AllListViewController()
+            case .flagSign:
+                return ViewController()
+            case .complete:
+                return ViewController()
+            }
+            
+        }
     }
     
     let mainView = TodoListView()
@@ -69,11 +101,15 @@ extension TodoListViewController: UICollectionViewDelegate, UICollectionViewData
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TodoListCollectionViewCell.identifier, for: indexPath) as! TodoListCollectionViewCell
         
-        cell.mainImageView.image = UIImage(systemName: "star")
+        let row = TodoList.allCases[indexPath.item]
+        cell.mainImageView.image = row.image
         cell.countLabel.text = "0"
-        cell.titleLabel.text = TodoList.allCases[indexPath.item].rawValue
+        cell.titleLabel.text = row.rawValue
         return cell
     }
     
-    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let vc = TodoList.allCases[indexPath.row].viewController
+        transition(viewController: vc, style: .push)
+    }
 }

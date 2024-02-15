@@ -24,7 +24,7 @@ final class TodoListView: BaseView {
     
     let addTodoBtn = UIButton().then {
         var configuration = UIButton.Configuration.plain()
-        configuration.title = "프로필 이미지 설정"
+        configuration.title = "새로운 할 일"
         configuration.image = UIImage(systemName: "plus.circle.fill")
         configuration.baseForegroundColor = .systemBlue
         configuration.imagePadding = 10

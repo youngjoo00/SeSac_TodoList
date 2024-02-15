@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 protocol PassDataDelegate {
     func priorityReceived(segmentIndex: Int, section: Int)
@@ -38,13 +39,15 @@ final class AddTodoViewController: BaseViewController {
     }
     
     let mainView = AddTodoView()
+    var textField: String?
+    var textView: String?
+    var segmentIndex: Int?
     
     var subTitleDic: [Int: String] = [:] {
         didSet {
             self.mainView.tableView.reloadData()
         }
     }
-    
     
     override func loadView() {
         self.view = mainView
@@ -67,7 +70,21 @@ final class AddTodoViewController: BaseViewController {
     }
     
     @objc func didRightBarButtonItemTapped() {
-        print(#function)
+        guard let title = textField, let memo = textView, let deadLineDate = subTitleDic[1], let priority = segmentIndex else {
+            showToast(message: "제목, 메모, 마감일, 우선순위는 꼭 입력해주세요")
+            return
+        }
+        
+        let data = TodoModel(title: title, memo: memo, regDate: Date(), deadLineDate: deadLineDate, tag: subTitleDic[2], priority: priority, complete: false)
+        
+        let realm = try! Realm()
+        
+        try! realm.write {
+            realm.add(data)
+            print(realm.configuration.fileURL ?? "")
+        }
+        
+        dismiss(animated: true)
     }
     
     @objc func tagNotification(notification: NSNotification) {
@@ -75,6 +92,10 @@ final class AddTodoViewController: BaseViewController {
         guard let tag = notification.userInfo?["tag"] as? String else { return }
         
         subTitleDic[section] = tag
+    }
+    
+    @objc func didChangeValueTextField(_ textField: UITextField, indexPath: IndexPath) {
+        self.textField = textField.text!
     }
 }
 
@@ -108,6 +129,9 @@ extension AddTodoViewController: UITableViewDelegate, UITableViewDataSource {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: AddTodoTableViewCell.identifier, for: indexPath) as! AddTodoTableViewCell
             
+            cell.titleTextField.addTarget(self, action: #selector(didChangeValueTextField), for: .editingChanged)
+            cell.memoTextView.delegate = self
+            
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: SubAddTodoTableViewCell.identifier, for: indexPath) as! SubAddTodoTableViewCell
@@ -136,6 +160,7 @@ extension AddTodoViewController: UITableViewDelegate, UITableViewDataSource {
             
         } else if indexPath.section == 3 {
             let vc = DetailTodoList.allCases[indexPath.section].viewController as! PriorityViewController
+            vc.segmentIndex = segmentIndex
             vc.section = indexPath.section
             vc.delegate = self
             transition(viewController: vc, style: .push)
@@ -146,7 +171,31 @@ extension AddTodoViewController: UITableViewDelegate, UITableViewDataSource {
 extension AddTodoViewController: PassDataDelegate {
     
     func priorityReceived(segmentIndex: Int, section: Int) {
-        subTitleDic[section] = "\(segmentIndex)"
+        self.segmentIndex = segmentIndex
+        let priorityString = Priority.checkedPriority(segmentIndex: segmentIndex)
+        self.subTitleDic[section] = priorityString
     }
     
+}
+
+
+extension AddTodoViewController: UITextViewDelegate {
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == .systemGray5 {
+            textView.text = nil
+            textView.textColor = .white
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "메모"
+            textView.textColor = .systemGray5
+        }
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        self.textView = textView.text
+    }
 }

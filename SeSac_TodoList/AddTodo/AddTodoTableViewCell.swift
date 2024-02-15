@@ -9,11 +9,13 @@ import UIKit
 import SnapKit
 import Then
 
-class AddTodoTableViewCell: BaseTableViewCell {
+final class AddTodoTableViewCell: BaseTableViewCell {
     
     let titleTextField = UserInputTextField().then {
         $0.setPlaceholder(placeholder: "제목", color: .systemGray5)
         $0.font = .systemFont(ofSize: 18)
+        $0.autocorrectionType = .no
+        $0.spellCheckingType = .no
     }
     
     let lineView = UIView().then {
@@ -58,24 +60,7 @@ class AddTodoTableViewCell: BaseTableViewCell {
     }
     
     override func configureView() {
-        memoTextView.delegate = self
-        
     }
 }
 
-extension AddTodoTableViewCell: UITextViewDelegate {
-    
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == .systemGray5 {
-            textView.text = nil
-            textView.textColor = .white
-        }
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            textView.text = "메모"
-            textView.textColor = .systemGray5
-        }
-    }
-}
+

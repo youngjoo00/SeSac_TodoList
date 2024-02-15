@@ -7,12 +7,14 @@
 
 import UIKit
 
-class PriorityViewController: BaseViewController {
+final class PriorityViewController: BaseViewController {
     
     let mainView = PriorityView()
     
     var delegate: PassDataDelegate?
     var section = 0
+    var segmentIndex: Int?
+    
     override func loadView() {
         self.view = mainView
     }
@@ -23,10 +25,11 @@ class PriorityViewController: BaseViewController {
         configureNavigationBar()
         view.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0)
 
+        checkedSegmentControl()
     }
     
     @objc func didRightBarButtonItemTapped() {
-        print(section)
+        
         delegate?.priorityReceived(segmentIndex: mainView.segmentControl.selectedSegmentIndex, section: section)
         navigationController?.popViewController(animated: true)
     }
@@ -34,6 +37,14 @@ class PriorityViewController: BaseViewController {
 }
 
 extension PriorityViewController {
+    
+    func checkedSegmentControl() {
+        if let segmentIndex {
+            mainView.segmentControl.selectedSegmentIndex = segmentIndex
+        } else {
+            mainView.segmentControl.selectedSegmentIndex = 0
+        }
+    }
     
     func configureNavigationBar() {
         let rightBtnItem = UIBarButtonItem(title: "추가", style: .plain, target: self, action: #selector(didRightBarButtonItemTapped))
@@ -43,4 +54,5 @@ extension PriorityViewController {
         
         navigationItem.titleView = mainView.navTitle
     }
+
 }

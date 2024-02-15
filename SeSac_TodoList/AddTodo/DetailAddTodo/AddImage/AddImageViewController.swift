@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AddImageViewController: BaseViewController {
+final class AddImageViewController: BaseViewController {
     
     let mainView = AddImageView()
     

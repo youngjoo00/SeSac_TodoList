@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
-class DateView: BaseView {
+final class DateView: BaseView {
     
     let navTitle = WhiteTitleLabel().then {
         $0.text = "마감일"

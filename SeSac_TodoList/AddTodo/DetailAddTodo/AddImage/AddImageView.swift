@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
-class AddImageView: BaseView {
+final class AddImageView: BaseView {
     
     let navTitle = WhiteTitleLabel().then {
         $0.text = "이미지 추가"
