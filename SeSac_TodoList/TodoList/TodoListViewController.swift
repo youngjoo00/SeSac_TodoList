@@ -50,6 +50,7 @@ final class TodoListViewController: BaseViewController {
     }
     
     let mainView = TodoListView()
+    var todoData: Results<TodoModel>!
     
     override func loadView() {
         self.view = mainView
@@ -65,6 +66,17 @@ final class TodoListViewController: BaseViewController {
         
         configureToolBar()
         
+        NotificationCenter.default.addObserver(self, selector: #selector(todoModelCountNotification), name: NSNotification.Name("postTodoModelCount"), object: nil)
+    }
+    
+    @objc func todoModelCountNotification(notification: NSNotification) {
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        readTodoData()
     }
     
     @objc func leftButtonTapped() {
@@ -74,6 +86,7 @@ final class TodoListViewController: BaseViewController {
     @objc func rightButtonTapped() {
         print(#function)
     }
+    
 }
 
 extension TodoListViewController {
@@ -90,6 +103,14 @@ extension TodoListViewController {
         self.toolbarItems = [addTodoBtnItem, flexibleSpace, addListBtnItem]
     }
     
+    func readTodoData() {
+        
+        let realm = try! Realm()
+        
+        todoData = realm.objects(TodoModel.self)
+
+        mainView.collectionView.reloadData()
+    }
 }
 
 extension TodoListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
@@ -103,7 +124,14 @@ extension TodoListViewController: UICollectionViewDelegate, UICollectionViewData
         
         let row = TodoList.allCases[indexPath.item]
         cell.mainImageView.image = row.image
-        cell.countLabel.text = "0"
+        
+        // 어떻게 하는게 좋을까..
+        if row.rawValue == "전체" {
+            cell.countLabel.text = "\(todoData.count)"
+        } else {
+            cell.countLabel.text = "0"
+        }
+        
         cell.titleLabel.text = row.rawValue
         return cell
     }
