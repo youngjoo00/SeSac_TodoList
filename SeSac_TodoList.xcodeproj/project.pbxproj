@@ -17,6 +17,7 @@
 		8E7FAE102B7FA759000CB6EC /* TodoTableRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7FAE0F2B7FA759000CB6EC /* TodoTableRepository.swift */; };
 		8E7FAE122B808B72000CB6EC /* TodoList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7FAE112B808B72000CB6EC /* TodoList.swift */; };
 		8E7FAE142B80913C000CB6EC /* CustomDateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7FAE132B80913C000CB6EC /* CustomDateFormatter.swift */; };
+		8E7FAE182B80D33A000CB6EC /* LineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7FAE172B80D33A000CB6EC /* LineView.swift */; };
 		8E9513462B7CF4CD0034C500 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9513452B7CF4CD0034C500 /* AppDelegate.swift */; };
 		8E9513482B7CF4CD0034C500 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9513472B7CF4CD0034C500 /* SceneDelegate.swift */; };
 		8E95134A2B7CF4CD0034C500 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9513492B7CF4CD0034C500 /* ViewController.swift */; };
@@ -64,6 +65,7 @@
 		8E7FAE0F2B7FA759000CB6EC /* TodoTableRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoTableRepository.swift; sourceTree = "<group>"; };
 		8E7FAE112B808B72000CB6EC /* TodoList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoList.swift; sourceTree = "<group>"; };
 		8E7FAE132B80913C000CB6EC /* CustomDateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateFormatter.swift; sourceTree = "<group>"; };
+		8E7FAE172B80D33A000CB6EC /* LineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineView.swift; sourceTree = "<group>"; };
 		8E9513422B7CF4CD0034C500 /* SeSac_TodoList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SeSac_TodoList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E9513452B7CF4CD0034C500 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8E9513472B7CF4CD0034C500 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -191,6 +193,7 @@
 				8E9513762B7CF57C0034C500 /* UserInputTextField.swift */,
 				8E9513772B7CF57C0034C500 /* HorizontalCollectionView.swift */,
 				8E9513782B7CF57C0034C500 /* WhiteTitleLabel.swift */,
+				8E7FAE172B80D33A000CB6EC /* LineView.swift */,
 			);
 			path = CustomView;
 			sourceTree = "<group>";
@@ -407,6 +410,7 @@
 				8E7FADFC2B7EA23D000CB6EC /* AllListView.swift in Sources */,
 				8E95137B2B7CF57C0034C500 /* UserInputTextField.swift in Sources */,
 				8E9513AD2B7D1F640034C500 /* PriorityViewController.swift in Sources */,
+				8E7FAE182B80D33A000CB6EC /* LineView.swift in Sources */,
 				8E95139D2B7D0BD70034C500 /* AddTodoTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

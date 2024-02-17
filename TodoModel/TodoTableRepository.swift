@@ -27,7 +27,7 @@ final class TodoTableRepository {
         return realm.objects(TodoModel.self)
     }
     
-    // 받아온 데이터를 각 필터링에 맞게 카운트를 올려줌
+    /// 받아온 데이터를 각 필터링에 맞게 카운트를 올려줌
     func fetchTodoListCount() -> [TodoList: Int] {
         let data = fetch()
 
@@ -48,5 +48,16 @@ final class TodoTableRepository {
         }.count
         
         return [.today: todayCount, .expected: expectedCount, .all: allCount, .complete: completeCount]
+    }
+    
+    /// TodoModel 타입의 item 을 매개변수로 넣으면 complete 변환
+    func updateComplete(_ item: TodoModel) {
+        do {
+            try realm.write {
+                item.complete.toggle()
+            }
+        } catch {
+            print(error)
+        }
     }
 }

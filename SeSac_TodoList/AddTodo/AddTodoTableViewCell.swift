@@ -18,10 +18,7 @@ final class AddTodoTableViewCell: BaseTableViewCell {
         $0.spellCheckingType = .no
     }
     
-    let lineView = UIView().then {
-        $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.systemGray2.cgColor
-    }
+    let lineView = LineView()
     
     let memoTextView = UITextView().then {
         $0.backgroundColor = .clear

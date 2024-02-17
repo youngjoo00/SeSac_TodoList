@@ -11,8 +11,9 @@ import RealmSwift
 final class AllListViewController: BaseViewController {
     
     let mainView = AllListView()
+    let todoRepository = TodoTableRepository()
     
-    var allList: Results<TodoModel>!
+    var dataList: Results<TodoModel>!
     
     override func loadView() {
         self.view = mainView
@@ -35,11 +36,9 @@ extension AllListViewController {
     
     func readTodoData() {
         
-        let realm = try! Realm()
-        
-        allList = realm.objects(TodoModel.self).sorted(byKeyPath: "regDate", ascending: true)
+        dataList = todoRepository.fetch()
     
-        if allList.count == 0 {
+        if dataList.count == 0 {
             showToast(message: "알림을 등록해보세요!")
         }
         
@@ -48,23 +47,22 @@ extension AllListViewController {
     
     func configureNavigationBar() {
 
-        let realm = try! Realm()
-        
-        let temp = realm.objects(TodoModel.self)
         navigationItem.titleView = mainView.navTitle
 
+        let temp = todoRepository.fetch()
+
         let deadlineAction = UIAction(title: "마감일 순으로 보기") { _ in
-            self.allList = temp.sorted(byKeyPath: "deadLineDate", ascending: true)
+            self.dataList = temp.sorted(byKeyPath: "deadLineDate", ascending: true)
             self.mainView.tableView.reloadData()
         }
         
         let titleAction = UIAction(title: "제목 순으로 보기") { _ in
-            self.allList = temp.sorted(byKeyPath: "title", ascending: true)
+            self.dataList = temp.sorted(byKeyPath: "title", ascending: true)
             self.mainView.tableView.reloadData()
         }
 
         let priorityAction = UIAction(title: "우선순위 낮음만 보기") { _ in
-            self.allList = temp.where {
+            self.dataList = temp.where {
                 $0.priority == 1
             }
             self.mainView.tableView.reloadData()
@@ -77,32 +75,67 @@ extension AllListViewController {
     }
 
 }
+
 extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return allList.count
+        return dataList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AllListTableViewCell.identifier, for: indexPath) as! AllListTableViewCell
         
-        let row = allList[indexPath.row]
+        print("dataList[indexPath.row]: ", dataList[indexPath.row])
+
+        cell.delegate = self
+        
+        let row = dataList[indexPath.row]
         
         if row.complete {
-            cell.checkBtn.backgroundColor = .white
+            cell.checkBtn.setImage(UIImage(systemName: "circle.fill"), for: .normal)
         } else {
-            cell.checkBtn.backgroundColor = .clear
+            cell.checkBtn.setImage(UIImage(systemName: "circle"), for: .normal)
         }
-        cell.titleTextField.text = row.title
-        cell.memoTextView.text = row.memo
+        
+        cell.titleLabel.text = row.title
+        cell.memoLabel.text = row.memo
         cell.deadLineLabel.text = row.deadLineDate
         
         if let tag = row.tag {
             cell.tagLabel.text = "#\(tag)"
         }
+//      이 부분을 넣어주면 셀의 데이터를 명확하게 지정해주니 셀이 재사용되어 뷰가 보여도, 정상적으로 잘 나타나는데
+//      이 부분이 없으면 여기저기 셀에 개판도 이런 개판이 없다.
+//      하지만, prepareForReuse 함수를 이용해 해결할 수 있었다.
+//        else {
+//            cell.tagLabel.text = nil
+//        }
         
-        cell.priorityLabel.text = "우선순위 : \(Priority.checkedPriority(segmentIndex: row.priority))"
+        if row.priority != 0 {
+            cell.priorityLabel.text = "우선순위 : \(Priority.checkedPriority(segmentIndex: row.priority))"
+        }
+        
+        if indexPath.row == dataList.count - 1 {
+            cell.lineView.isHidden = true
+        }
+        
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print(indexPath.row)
+    }
+    
+}
+
+extension AllListViewController: checkBtnTappedDelegate {
+    func cellCheckBtnTapped(cell: UITableViewCell) {
+        // btn 을 눌렀을 때 감지한 셀의 indexPath 가져오기
+        if let indexPath = mainView.tableView.indexPath(for: cell) {
+            let item = dataList[indexPath.row]
+            todoRepository.updateComplete(item)
+            mainView.tableView.reloadRows(at: [indexPath], with: .automatic)
+        }
     }
     
 }
