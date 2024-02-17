@@ -9,16 +9,18 @@ import Foundation
 
 enum Priority {
     
-    static func checkedPriority(segmentIndex: Int) -> String {
+    static func checkedPriority(segmentIndex: Int?) -> String {
         switch segmentIndex {
         case 0:
-            return "우선순위: 낮음"
+            return "없음"
         case 1:
-            return "우선순위: 보통"
+            return "낮음"
         case 2:
-            return "우선순위: 높음"
+            return "보통"
+        case 3:
+            return "높음"
         default:
-            return "우선순위: 없음"
+            return ""
         }
     }
     

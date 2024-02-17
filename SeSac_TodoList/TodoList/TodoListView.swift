@@ -10,7 +10,7 @@ import SnapKit
 import Then
 
 final class TodoListView: BaseView {
-    
+
     let titleLabel = UILabel().then {
         $0.text = "전체"
         $0.textColor = .lightGray

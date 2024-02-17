@@ -6,51 +6,16 @@
 //
 
 import UIKit
-import RealmSwift
+
+protocol PassTodoDelegate {
+    func fetchTodoReceived()
+}
 
 final class TodoListViewController: BaseViewController {
 
-    enum TodoList: String, CaseIterable {
-        case today = "오늘"
-        case expected = "예정"
-        case all = "전체"
-        case flagSign = "깃발 표시"
-        case complete = "완료됨"
-        
-        var image: UIImage? {
-            switch self {
-            case .today:
-                return UIImage(systemName: "calendar")
-            case .expected:
-                return UIImage(systemName: "calendar.badge.exclamationmark")
-            case .all:
-                return UIImage(systemName: "apple.logo")
-            case .flagSign:
-                return UIImage(systemName: "flag.fill")
-            case .complete:
-                return UIImage(systemName: "checkmark")
-            }
-        }
-        
-        var viewController: UIViewController {
-            switch self {
-            case .today:
-                return ViewController()
-            case .expected:
-                return ViewController()
-            case .all:
-                return AllListViewController()
-            case .flagSign:
-                return ViewController()
-            case .complete:
-                return ViewController()
-            }
-            
-        }
-    }
-    
     let mainView = TodoListView()
-    var todoData: Results<TodoModel>!
+    var todoRepository = TodoTableRepository()
+    var countDic: [TodoList: Int] = [:]
     
     override func loadView() {
         self.view = mainView
@@ -75,15 +40,24 @@ final class TodoListViewController: BaseViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        readTodoData()
+    
+        navigationController?.isToolbarHidden = false
+        fetchTodoCountData()
     }
     
-    @objc func leftButtonTapped() {
-        transition(viewController: AddTodoViewController(), style: .presentNavigation)
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        navigationController?.isToolbarHidden = true
+    }
+    
+    @objc func didAddTodoBtnTapped() {
+        let vc = AddTodoViewController()
+        vc.todoDelegate = self
+        transition(viewController: vc, style: .presentNavigation)
     }
 
-    @objc func rightButtonTapped() {
+    @objc func didAddListBtnTapped() {
         print(#function)
     }
     
@@ -92,10 +66,10 @@ final class TodoListViewController: BaseViewController {
 extension TodoListViewController {
     
     func configureToolBar() {
-        mainView.addTodoBtn.addTarget(self, action: #selector(leftButtonTapped), for: .touchUpInside)
+        mainView.addTodoBtn.addTarget(self, action: #selector(didAddTodoBtnTapped), for: .touchUpInside)
         
         let addTodoBtnItem = UIBarButtonItem(customView: mainView.addTodoBtn)
-        let addListBtnItem = UIBarButtonItem(title: "목록 추가", style: .plain, target: self, action: #selector(rightButtonTapped))
+        let addListBtnItem = UIBarButtonItem(title: "목록 추가", style: .plain, target: self, action: #selector(didAddListBtnTapped))
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
         // 공백을 넣고싶을때마다 배열안에 넣어주어야 함
@@ -103,12 +77,10 @@ extension TodoListViewController {
         self.toolbarItems = [addTodoBtnItem, flexibleSpace, addListBtnItem]
     }
     
-    func readTodoData() {
+    func fetchTodoCountData() {
         
-        let realm = try! Realm()
-        
-        todoData = realm.objects(TodoModel.self)
-
+        countDic = todoRepository.fetchTodoListCount()
+        print(countDic)
         mainView.collectionView.reloadData()
     }
 }
@@ -124,13 +96,9 @@ extension TodoListViewController: UICollectionViewDelegate, UICollectionViewData
         
         let row = TodoList.allCases[indexPath.item]
         cell.mainImageView.image = row.image
-        
-        // 어떻게 하는게 좋을까..
-        if row.rawValue == "전체" {
-            cell.countLabel.text = "\(todoData.count)"
-        } else {
-            cell.countLabel.text = "0"
-        }
+
+        let count = countDic[row] ?? 0
+        cell.countLabel.text = "\(count)"
         
         cell.titleLabel.text = row.rawValue
         return cell
@@ -139,5 +107,11 @@ extension TodoListViewController: UICollectionViewDelegate, UICollectionViewData
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let vc = TodoList.allCases[indexPath.row].viewController
         transition(viewController: vc, style: .push)
+    }
+}
+
+extension TodoListViewController: PassTodoDelegate {
+    func fetchTodoReceived() {
+        fetchTodoCountData()
     }
 }

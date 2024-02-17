@@ -16,9 +16,10 @@ final class PriorityView: BaseView {
     }
     
     let segmentControl = UISegmentedControl().then {
-        $0.insertSegment(withTitle: "낮음", at: 0, animated: true)
-        $0.insertSegment(withTitle: "보통", at: 1, animated: true)
-        $0.insertSegment(withTitle: "높음", at: 2, animated: true)
+        $0.insertSegment(withTitle: "없음", at: 0, animated: true)
+        $0.insertSegment(withTitle: "낮음", at: 1, animated: true)
+        $0.insertSegment(withTitle: "보통", at: 2, animated: true)
+        $0.insertSegment(withTitle: "높음", at: 3, animated: true)
         $0.selectedSegmentTintColor = .systemBlue
 
         $0.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for: .normal)

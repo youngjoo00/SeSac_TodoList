@@ -16,7 +16,8 @@ class BaseViewController: UIViewController {
         view.backgroundColor = .black
         self.navigationController?.navigationBar.tintColor = .white
         self.navigationController?.navigationBar.topItem?.title = ""
-        
+        //navigationController?.isToolbarHidden = true
+
         configureHierarchy()
         configureLayout()
         configureView()

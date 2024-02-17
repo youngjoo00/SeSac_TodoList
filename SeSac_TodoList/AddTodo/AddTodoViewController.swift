@@ -39,10 +39,14 @@ final class AddTodoViewController: BaseViewController {
     }
     
     let mainView = AddTodoView()
+    let todoRepository = TodoTableRepository()
+    
     var textField: String?
     var textView: String?
-    var segmentIndex: Int?
-    
+    var priority: Int = 0
+
+    var todoDelegate: PassTodoDelegate?
+
     var subTitleDic: [Int: String] = [:] {
         didSet {
             self.mainView.tableView.reloadData()
@@ -70,19 +74,16 @@ final class AddTodoViewController: BaseViewController {
     }
     
     @objc func didRightBarButtonItemTapped() {
-        guard let title = textField, let memo = textView, let deadLineDate = subTitleDic[1], let priority = segmentIndex else {
-            showToast(message: "제목, 메모, 마감일, 우선순위는 꼭 입력해주세요")
+        guard let title = textField, let deadLineDate = subTitleDic[1] else {
+            showToast(message: "제목, 마감일은 꼭 입력해주세요")
             return
         }
         
-        let data = TodoModel(title: title, memo: memo, regDate: Date(), deadLineDate: deadLineDate, tag: subTitleDic[2], priority: priority, complete: false)
+        let data = TodoModel(title: title, memo: textField, regDate: Date(), deadLineDate: deadLineDate, tag: subTitleDic[2], priority: priority, complete: false)
         
-        let realm = try! Realm()
+        todoRepository.createItem(item: data)
         
-        try! realm.write {
-            realm.add(data)
-            print(realm.configuration.fileURL ?? "")
-        }
+        todoDelegate?.fetchTodoReceived()
         
         dismiss(animated: true)
     }
@@ -160,7 +161,7 @@ extension AddTodoViewController: UITableViewDelegate, UITableViewDataSource {
             
         } else if indexPath.section == 3 {
             let vc = DetailTodoList.allCases[indexPath.section].viewController as! PriorityViewController
-            vc.segmentIndex = segmentIndex
+            vc.segmentIndex = priority
             vc.section = indexPath.section
             vc.delegate = self
             transition(viewController: vc, style: .push)
@@ -170,9 +171,9 @@ extension AddTodoViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension AddTodoViewController: PassDataDelegate {
     
-    func priorityReceived(segmentIndex: Int, section: Int) {
-        self.segmentIndex = segmentIndex
-        let priorityString = Priority.checkedPriority(segmentIndex: segmentIndex)
+    func priorityReceived(segmentIndex priority: Int, section: Int) {
+        self.priority = priority
+        let priorityString = Priority.checkedPriority(segmentIndex: priority)
         self.subTitleDic[section] = priorityString
     }
     
@@ -181,6 +182,7 @@ extension AddTodoViewController: PassDataDelegate {
 
 extension AddTodoViewController: UITextViewDelegate {
     
+    // 편집을 시작했을 때
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.textColor == .systemGray5 {
             textView.text = nil
@@ -188,6 +190,7 @@ extension AddTodoViewController: UITextViewDelegate {
         }
     }
     
+    // 편집이 끝났을 때
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
             textView.text = "메모"
@@ -195,7 +198,10 @@ extension AddTodoViewController: UITextViewDelegate {
         }
     }
     
+    
     func textViewDidChange(_ textView: UITextView) {
-        self.textView = textView.text
+        if textView.textColor == .white {
+            self.textView = textView.text
+        }
     }
 }

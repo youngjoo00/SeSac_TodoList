@@ -36,6 +36,7 @@ final class AllListTableViewCell: BaseTableViewCell {
     
     let tagLabel = WhiteTitleLabel().then {
         $0.font = .boldSystemFont(ofSize: 15)
+        $0.textColor = .systemBlue
     }
     
     let priorityLabel = WhiteTitleLabel().then {

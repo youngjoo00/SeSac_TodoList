@@ -65,7 +65,7 @@ extension AllListViewController {
 
         let priorityAction = UIAction(title: "우선순위 낮음만 보기") { _ in
             self.allList = temp.where {
-                $0.priority == 0
+                $0.priority == 1
             }
             self.mainView.tableView.reloadData()
         }
@@ -75,10 +75,7 @@ extension AllListViewController {
         
         navigationItem.rightBarButtonItem = rightBtnItem
     }
-    
-    @objc func didRightBarButtonItemTapped() {
-        
-    }
+
 }
 extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
     
@@ -99,8 +96,12 @@ extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
         cell.titleTextField.text = row.title
         cell.memoTextView.text = row.memo
         cell.deadLineLabel.text = row.deadLineDate
-        cell.tagLabel.text = "#\(row.tag ?? "태그 없음")"
-        cell.priorityLabel.text = Priority.checkedPriority(segmentIndex: row.priority)
+        
+        if let tag = row.tag {
+            cell.tagLabel.text = "#\(tag)"
+        }
+        
+        cell.priorityLabel.text = "우선순위 : \(Priority.checkedPriority(segmentIndex: row.priority))"
         return cell
     }
     
