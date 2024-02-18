@@ -22,4 +22,22 @@ enum Todo: String, CaseIterable {
             return "우선순위"
         }
     }
+    
+    // 뭔가 좀 많이 이상하지만 일단 구현
+    static func returnStringList(_ todoData: TodoModel) -> [Int: String] {
+
+        var dic: [Int: String] = [:]
+        
+        dic[0] = todoData.title
+        dic[1] = todoData.memo
+        dic[2] = CustomDateFormatter.shared.formatDateString(date: todoData.deadLineDate)
+        
+        if let tag = todoData.tag {
+            dic[3] = tag
+        }
+        
+        dic[4] = Priority.checkedPriority(segmentIndex: todoData.priority)
+        
+        return dic
+    }
 }

@@ -7,10 +7,6 @@
 
 import UIKit
 
-protocol PassTodoDelegate {
-    func fetchTodoReceived()
-}
-
 final class TodoListViewController: BaseViewController {
 
     let mainView = TodoListView()
@@ -80,7 +76,6 @@ extension TodoListViewController {
     func fetchTodoCountData() {
         
         countDic = todoRepository.fetchTodoListCount()
-        print(countDic)
         mainView.collectionView.reloadData()
     }
 }
@@ -105,7 +100,8 @@ extension TodoListViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let vc = TodoList.allCases[indexPath.row].viewController
+        let vc = DetailTodoListViewController()
+        vc.mainView.navTitle.text = TodoList.allCases[indexPath.row].rawValue
         transition(viewController: vc, style: .push)
     }
 }

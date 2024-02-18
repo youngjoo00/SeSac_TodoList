@@ -8,9 +8,9 @@
 import UIKit
 import RealmSwift
 
-final class AllListViewController: BaseViewController {
+final class DetailTodoListViewController: BaseViewController {
     
-    let mainView = AllListView()
+    let mainView = DetailTodoListView()
     let todoRepository = TodoTableRepository()
     
     var dataList: Results<TodoModel>!
@@ -26,22 +26,24 @@ final class AllListViewController: BaseViewController {
         
         mainView.tableView.dataSource = self
         mainView.tableView.delegate = self
-        
         readTodoData()
     }
-    
-}
 
-extension AllListViewController {
-    
-    func readTodoData() {
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
-        dataList = todoRepository.fetch()
-        
+        // 뷰가 완전히 보여지고 나서야 토스트가 나타난다!?
+        // ViewDidLoad 같은 함수에서는 웬만하면 쓰지 말자..
         if dataList.count == 0 {
             showToast(message: "알림을 등록해보세요!")
         }
-        
+    }
+}
+
+extension DetailTodoListViewController {
+    
+    func readTodoData() {
+        dataList = todoRepository.fetchFilterTodoList(navTitleText: mainView.navTitle.text!)
         mainView.tableView.reloadData()
     }
     
@@ -75,14 +77,14 @@ extension AllListViewController {
     
 }
 
-extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
+extension DetailTodoListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dataList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: AllListTableViewCell.identifier, for: indexPath) as! AllListTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: DetailTodoListTableViewCell.identifier, for: indexPath) as! DetailTodoListTableViewCell
         
         cell.delegate = self
         
@@ -96,11 +98,12 @@ extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
         
         cell.titleLabel.text = row.title
         cell.memoLabel.text = row.memo
-        cell.deadLineLabel.text = row.deadLineDate
+        cell.deadLineLabel.text = CustomDateFormatter.shared.formatDateString(date: row.deadLineDate)
         
-        if let tag = row.tag {
+        if let tag = row.tag, !tag.isEmpty {
             cell.tagLabel.text = "#\(tag)"
         }
+        
         //      이 부분을 넣어주면 셀의 데이터를 명확하게 지정해주니 셀이 재사용되어 뷰가 보여도, 정상적으로 잘 나타나는데
         //      이 부분이 없으면 여기저기 셀에 개판도 이런 개판이 없다.
         //      하지만, prepareForReuse 함수를 이용해 해결할 수 있었다.
@@ -120,7 +123,10 @@ extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(indexPath.row)
+        let vc = EditTodoViewController()
+        vc.todoData = dataList[indexPath.row]
+        vc.todoDelegate = self
+        transition(viewController: vc, style: .presentNavigation)
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -151,7 +157,7 @@ extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension AllListViewController: checkBtnTappedDelegate {
+extension DetailTodoListViewController: checkBtnTappedDelegate {
     func cellCheckBtnTapped(cell: UITableViewCell) {
         // btn 을 눌렀을 때 감지한 셀의 indexPath 가져오기
         if let indexPath = mainView.tableView.indexPath(for: cell) {
@@ -161,4 +167,10 @@ extension AllListViewController: checkBtnTappedDelegate {
         }
     }
     
+}
+
+extension DetailTodoListViewController: PassTodoDelegate {
+    func fetchTodoReceived() {
+        mainView.tableView.reloadData()
+    }
 }

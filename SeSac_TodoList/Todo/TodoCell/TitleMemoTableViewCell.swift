@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class AddTodoTableViewCell: BaseTableViewCell {
+final class TitleMemoTableViewCell: BaseTableViewCell {
     
     let titleTextField = UserInputTextField().then {
         $0.setPlaceholder(placeholder: "제목", color: .systemGray5)
@@ -26,6 +26,8 @@ final class AddTodoTableViewCell: BaseTableViewCell {
         $0.textColor = .systemGray5
         $0.font = .systemFont(ofSize: 18)
         $0.textContainerInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
+        $0.autocorrectionType = .no
+        $0.spellCheckingType = .no
     }
     
     override func configureHierarchy() {

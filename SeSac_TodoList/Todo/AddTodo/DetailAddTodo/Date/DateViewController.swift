@@ -1,5 +1,5 @@
 //
-//  TagViewController.swift
+//  DateViewController.swift
 //  SeSac_TodoList
 //
 //  Created by youngjoo on 2/15/24.
@@ -7,11 +7,11 @@
 
 import UIKit
 
-final class TagViewController: BaseViewController {
+final class DateViewController: BaseViewController {
     
-    let mainView = TagView()
+    let mainView = DateView()
     
-    var section = 0
+    var dateSpace: ((Date) -> Void)?
     
     override func loadView() {
         self.view = mainView
@@ -19,18 +19,20 @@ final class TagViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         configureNavigationBar()
         view.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0)
     }
     
     @objc func didRightBarButtonItemTapped() {
-        NotificationCenter.default.post(name: NSNotification.Name("postTag"), object: nil, userInfo: ["tag": mainView.textField.text!, "section": section])
+        
+        dateSpace?(mainView.datePickerView.date)
         navigationController?.popViewController(animated: true)
     }
+    
 }
 
-extension TagViewController {
+extension DateViewController {
     
     func configureNavigationBar() {
         let rightBtnItem = UIBarButtonItem(title: "추가", style: .plain, target: self, action: #selector(didRightBarButtonItemTapped))

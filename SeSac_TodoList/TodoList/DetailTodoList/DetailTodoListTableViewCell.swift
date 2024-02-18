@@ -23,7 +23,7 @@ protocol checkBtnTappedDelegate: AnyObject {
     func cellCheckBtnTapped(cell: UITableViewCell)
 }
 
-final class AllListTableViewCell: BaseTableViewCell {
+final class DetailTodoListTableViewCell: BaseTableViewCell {
     
     // prepareForReuse 함수를 통해 재사용 되기 전에 초기화 시켜주도록 함
     override func prepareForReuse() {

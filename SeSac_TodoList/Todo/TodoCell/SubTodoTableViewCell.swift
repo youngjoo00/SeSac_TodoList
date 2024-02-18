@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class SubAddTodoTableViewCell: BaseTableViewCell {
+class SubTodoTableViewCell: BaseTableViewCell {
     
     let titleLabel = WhiteTitleLabel().then {
         $0.font = .systemFont(ofSize: 17)

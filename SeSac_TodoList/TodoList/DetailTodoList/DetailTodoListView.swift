@@ -1,31 +1,28 @@
 //
-//  AddTodoView.swift
+//  AllListView.swift
 //  SeSac_TodoList
 //
-//  Created by youngjoo on 2/14/24.
+//  Created by youngjoo on 2/16/24.
 //
 
 import UIKit
 import SnapKit
 import Then
 
-final class AddTodoView: BaseView {
+final class DetailTodoListView: BaseView {
     
-    let navTitle = WhiteTitleLabel().then {
-        $0.text = "새로운 할 일"
-    }
+    let navTitle = WhiteTitleLabel()
     
-    let tableView = UITableView(frame: .zero, style: .insetGrouped).then {
+    let tableView = UITableView().then {
         $0.backgroundColor = .clear
-        $0.register(AddTodoTableViewCell.self, forCellReuseIdentifier: AddTodoTableViewCell.identifier)
-        $0.register(SubAddTodoTableViewCell.self, forCellReuseIdentifier: SubAddTodoTableViewCell.identifier)
+        $0.register(DetailTodoListTableViewCell.self, forCellReuseIdentifier: DetailTodoListTableViewCell.identifier)
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = 44
     }
     
     override func configureHierarchy() {
         [
-            tableView,
+            tableView
         ].forEach { addSubview($0) }
     }
     

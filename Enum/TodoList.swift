@@ -26,17 +26,4 @@ enum TodoList: String, CaseIterable {
         }
     }
     
-    var viewController: UIViewController {
-        switch self {
-        case .today:
-            return ViewController()
-        case .expected:
-            return ViewController()
-        case .all:
-            return AllListViewController()
-        case .complete:
-            return ViewController()
-        }
-    }
-    
 }
