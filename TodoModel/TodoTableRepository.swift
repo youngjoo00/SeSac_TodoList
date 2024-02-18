@@ -14,7 +14,7 @@ final class TodoTableRepository {
     
     func createItem(item: TodoModel) {
         do {
-            try realm.write {
+            try realm.write { // 쓰기 트랜잭션을 시작하는 메서드
                 realm.add(item)
                 print("Realm Create", realm.configuration.fileURL!)
             }
@@ -55,6 +55,28 @@ final class TodoTableRepository {
         do {
             try realm.write {
                 item.complete.toggle()
+            }
+        } catch {
+            print(error)
+        }
+    }
+    
+    /// 원하는 컬럼 기준으로 오름차순 or 내림차순정렬 후 가져오기
+    func fetchSortColumn(_ byKeyPath: Todo, ascending: Bool) -> Results<TodoModel> {
+        return fetch().sorted(byKeyPath: byKeyPath.rawValue, ascending: ascending)
+    }
+
+    func fetchFilterRowPriority() -> Results<TodoModel> {
+        return fetch().where {
+            $0.priority == 1
+        }
+    }
+    
+    /// record 삭제, TodoModel 을 갖는 아이템을 매개변수로 사용
+    func deleteItem(_ item: TodoModel) {
+        do {
+            try realm.write {
+                realm.delete(item)
             }
         } catch {
             print(error)

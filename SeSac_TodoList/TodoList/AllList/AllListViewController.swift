@@ -37,7 +37,7 @@ extension AllListViewController {
     func readTodoData() {
         
         dataList = todoRepository.fetch()
-    
+        
         if dataList.count == 0 {
             showToast(message: "알림을 등록해보세요!")
         }
@@ -46,34 +46,33 @@ extension AllListViewController {
     }
     
     func configureNavigationBar() {
-
+        
         navigationItem.titleView = mainView.navTitle
-
-        let temp = todoRepository.fetch()
-
-        let deadlineAction = UIAction(title: "마감일 순으로 보기") { _ in
-            self.dataList = temp.sorted(byKeyPath: "deadLineDate", ascending: true)
-            self.mainView.tableView.reloadData()
-        }
         
-        let titleAction = UIAction(title: "제목 순으로 보기") { _ in
-            self.dataList = temp.sorted(byKeyPath: "title", ascending: true)
-            self.mainView.tableView.reloadData()
-        }
-
-        let priorityAction = UIAction(title: "우선순위 낮음만 보기") { _ in
-            self.dataList = temp.where {
-                $0.priority == 1
+        // 액션 담아서 메뉴에 넣기
+        var actionList: [UIAction] = []
+        for i in Todo.allCases {
+            let action = UIAction(title: "\(i.displayString) 순으로 보기") { _ in
+                self.dataList = self.todoRepository.fetchSortColumn(i, ascending: true)
+                self.mainView.tableView.reloadData()
             }
+            
+            actionList.append(action)
+        }
+        
+        let action = UIAction(title: "우선순위", subtitle: "낮음") { _ in
+            self.dataList = self.todoRepository.fetchFilterRowPriority()
             self.mainView.tableView.reloadData()
         }
         
-        let menu = UIMenu(children: [deadlineAction, titleAction, priorityAction])
+        actionList.append(action)
+        
+        let menu = UIMenu(children: actionList)
         let rightBtnItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
         
         navigationItem.rightBarButtonItem = rightBtnItem
     }
-
+    
 }
 
 extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -85,8 +84,6 @@ extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AllListTableViewCell.identifier, for: indexPath) as! AllListTableViewCell
         
-        print("dataList[indexPath.row]: ", dataList[indexPath.row])
-
         cell.delegate = self
         
         let row = dataList[indexPath.row]
@@ -104,12 +101,12 @@ extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
         if let tag = row.tag {
             cell.tagLabel.text = "#\(tag)"
         }
-//      이 부분을 넣어주면 셀의 데이터를 명확하게 지정해주니 셀이 재사용되어 뷰가 보여도, 정상적으로 잘 나타나는데
-//      이 부분이 없으면 여기저기 셀에 개판도 이런 개판이 없다.
-//      하지만, prepareForReuse 함수를 이용해 해결할 수 있었다.
-//        else {
-//            cell.tagLabel.text = nil
-//        }
+        //      이 부분을 넣어주면 셀의 데이터를 명확하게 지정해주니 셀이 재사용되어 뷰가 보여도, 정상적으로 잘 나타나는데
+        //      이 부분이 없으면 여기저기 셀에 개판도 이런 개판이 없다.
+        //      하지만, prepareForReuse 함수를 이용해 해결할 수 있었다.
+        //        else {
+        //            cell.tagLabel.text = nil
+        //        }
         
         if row.priority != 0 {
             cell.priorityLabel.text = "우선순위 : \(Priority.checkedPriority(segmentIndex: row.priority))"
@@ -126,6 +123,32 @@ extension AllListViewController: UITableViewDelegate, UITableViewDataSource {
         print(indexPath.row)
     }
     
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let favorite = UIContextualAction(style: .normal, title: "즐겨찾기") { action, view, completionHandler in
+            print("즐겨찾기는 임시입니다.")
+            print(action, view, completionHandler)
+            completionHandler(true)
+        }
+        favorite.backgroundColor = .systemBlue
+        favorite.image = UIImage(systemName: "star")
+        
+        let delete = UIContextualAction(style: .destructive, title: "삭제") { action, view, completionHandler in
+            let item = self.dataList[indexPath.row]
+            self.todoRepository.deleteItem(item)
+            
+            tableView.reloadData()
+            
+            // 액션이 완료되었음을 시스템에 알리는 역할이라는데 없어도 문제는 없긴 하다..
+            completionHandler(true)
+        }
+        
+        delete.backgroundColor = .systemRed
+        delete.image = UIImage(systemName: "trash")
+        
+        //actions배열 인덱스 0이 오른쪽에 붙어서 나옴
+        return UISwipeActionsConfiguration(actions:[delete, favorite])
+    }
 }
 
 extension AllListViewController: checkBtnTappedDelegate {
