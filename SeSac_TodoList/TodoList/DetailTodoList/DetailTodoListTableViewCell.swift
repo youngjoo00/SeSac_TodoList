@@ -35,6 +35,7 @@ final class DetailTodoListTableViewCell: BaseTableViewCell {
         tagLabel.text = nil
         priorityLabel.text = nil
         lineView.isHidden = false
+        photoImageView.image = nil
     }
     
     weak var delegate: checkBtnTappedDelegate?
@@ -70,6 +71,8 @@ final class DetailTodoListTableViewCell: BaseTableViewCell {
         $0.font = .boldSystemFont(ofSize: 15)
     }
     
+    let photoImageView = UIImageView()
+    
     let lineView = LineView()
     
     override func configureHierarchy() {
@@ -78,6 +81,7 @@ final class DetailTodoListTableViewCell: BaseTableViewCell {
             titleLabel,
             stackView,
             lineView,
+            photoImageView
         ].forEach { contentView.addSubview($0) }
         
         [
@@ -112,6 +116,12 @@ final class DetailTodoListTableViewCell: BaseTableViewCell {
             make.bottom.equalToSuperview()
             make.horizontalEdges.equalToSuperview().inset(16)
             make.height.equalTo(1)
+        }
+        
+        photoImageView.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.top)
+            make.size.equalTo(80)
+            make.trailing.equalTo(contentView).offset(-16)
         }
     }
     

@@ -30,7 +30,7 @@ enum Todo: String, CaseIterable {
         
         dic[0] = todoData.title
         dic[1] = todoData.memo
-        dic[2] = CustomDateFormatter.shared.formatDateString(date: todoData.deadLineDate)
+        dic[2] = DateManager.shared.formatDateString(date: todoData.deadLineDate)
         
         if let tag = todoData.tag {
             dic[3] = tag

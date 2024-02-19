@@ -20,6 +20,7 @@ final class EditTodoViewController: BaseViewController {
     var textView: String?
     var priority: Int = 0
     var deadLineDate: Date?
+    var image: UIImage?
     
     var todoDelegate: PassTodoDelegate?
 
@@ -47,6 +48,7 @@ final class EditTodoViewController: BaseViewController {
         textView = todoData.memo
         priority = todoData.priority
         deadLineDate = todoData.deadLineDate
+        image = loadImageToDocument(filename: "\(todoData.id)")
         
         mainView.tableView.delegate = self
         mainView.tableView.dataSource = self
@@ -64,6 +66,10 @@ final class EditTodoViewController: BaseViewController {
         }
 
         todoRepository.updateItem(todoData, title: title, memo: textView ?? "", deadLineDate: deadLineDate, tag: subTitleDic[3], priority: priority)
+        
+        if let image = image {
+            saveImageToDocument(image: image, filename: "\(todoData.id)")
+        }
         
         todoDelegate?.fetchTodoReceived()
         dismiss(animated: true)
@@ -121,8 +127,16 @@ extension EditTodoViewController: UITableViewDelegate, UITableViewDataSource {
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: SubTodoTableViewCell.identifier, for: indexPath) as! SubTodoTableViewCell
             
-            cell.titleLabel.text = DetailTodoList.allCases[indexPath.section].rawValue
-            cell.subTitleLabel.text = subTitleDic[indexPath.section + 1]
+            let section = DetailTodoList.allCases[indexPath.section].rawValue
+
+            cell.titleLabel.text = section
+            
+            if section == "이미지 추가" {
+                cell.photoImageView.image = image
+            } else {
+                cell.subTitleLabel.text = subTitleDic[indexPath.section + 1]
+            }
+            
             return cell
         }
         
@@ -133,7 +147,7 @@ extension EditTodoViewController: UITableViewDelegate, UITableViewDataSource {
         if indexPath.section == 1 {
             let vc = DetailTodoList.allCases[indexPath.section].viewController as! DateViewController
             vc.dateSpace = { date in
-                self.subTitleDic[indexPath.section + 1] = CustomDateFormatter.shared.formatDateString(date: date)
+                self.subTitleDic[indexPath.section + 1] = DateManager.shared.formatDateString(date: date)
                 self.deadLineDate = date
             }
             transition(viewController: vc, style: .push)
@@ -151,6 +165,11 @@ extension EditTodoViewController: UITableViewDelegate, UITableViewDataSource {
             vc.section = indexPath.section
             vc.delegate = self
             transition(viewController: vc, style: .push)
+        } else if indexPath.section == 4 {
+            let vc = UIImagePickerController()
+            vc.delegate = self
+            
+            transition(viewController: vc, style: .present)
         }
     }
 }
@@ -188,5 +207,22 @@ extension EditTodoViewController: UITextViewDelegate {
             self.textView = textView.text
             isMemoEdited = true
         }
+    }
+}
+
+extension EditTodoViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            image = pickedImage
+            mainView.tableView.reloadData()
+        }
+        
+        dismiss(animated: true)
     }
 }

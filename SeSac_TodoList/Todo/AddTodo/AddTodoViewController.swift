@@ -10,30 +10,6 @@ import RealmSwift
 
 final class AddTodoViewController: BaseViewController {
     
-    enum DetailTodoList: String, CaseIterable {
-        case title
-        case date = "마감일"
-        case tag = "태그"
-        case priority = "우선 순위"
-        case addImage = "이미지 추가"
-        
-        var viewController: UIViewController {
-            switch self {
-            case .title:
-                return ViewController()
-            case .date:
-                return DateViewController()
-            case .tag:
-                return TagViewController()
-            case .priority:
-                return PriorityViewController()
-            case .addImage:
-                return AddImageViewController()
-            }
-        }
-        
-    }
-    
     let mainView = AddTodoView()
     let todoRepository = TodoTableRepository()
     
@@ -41,6 +17,7 @@ final class AddTodoViewController: BaseViewController {
     var textView: String?
     var priority: Int = 0
     var deadLineDate: Date?
+    var image: UIImage?
     
     var todoDelegate: PassTodoDelegate?
 
@@ -52,7 +29,6 @@ final class AddTodoViewController: BaseViewController {
     
     override func loadView() {
         self.view = mainView
-        
     }
     
     override func viewDidLoad() {
@@ -79,6 +55,10 @@ final class AddTodoViewController: BaseViewController {
         let data = TodoModel(title: title, memo: textView, regDate: Date(), deadLineDate: deadLineDate, tag: subTitleDic[2], priority: priority, complete: false)
         
         todoRepository.createItem(item: data)
+        
+        if let image = image {
+            saveImageToDocument(image: image, filename: "\(data.id)")
+        }
         
         todoDelegate?.fetchTodoReceived()
         
@@ -134,8 +114,15 @@ extension AddTodoViewController: UITableViewDelegate, UITableViewDataSource {
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: SubTodoTableViewCell.identifier, for: indexPath) as! SubTodoTableViewCell
             
-            cell.titleLabel.text = DetailTodoList.allCases[indexPath.section].rawValue
-            cell.subTitleLabel.text = subTitleDic[indexPath.section]
+            let section = DetailTodoList.allCases[indexPath.section].rawValue
+            cell.titleLabel.text = section
+            
+            if section == "이미지 추가" {
+                cell.photoImageView.image = image
+            } else {
+                cell.subTitleLabel.text = subTitleDic[indexPath.section]
+            }
+            
             return cell
         }
         
@@ -146,7 +133,7 @@ extension AddTodoViewController: UITableViewDelegate, UITableViewDataSource {
         if indexPath.section == 1 {
             let vc = DetailTodoList.allCases[indexPath.section].viewController as! DateViewController
             vc.dateSpace = { date in
-                self.subTitleDic[indexPath.section] = CustomDateFormatter.shared.formatDateString(date: date)
+                self.subTitleDic[indexPath.section] = DateManager.shared.formatDateString(date: date)
                 self.deadLineDate = date
             }
             transition(viewController: vc, style: .push)
@@ -163,9 +150,15 @@ extension AddTodoViewController: UITableViewDelegate, UITableViewDataSource {
             vc.section = indexPath.section
             vc.delegate = self
             transition(viewController: vc, style: .push)
+        } else if indexPath.section == 4 {
+            let vc = UIImagePickerController()
+            vc.delegate = self
+            
+            transition(viewController: vc, style: .present)
         }
     }
 }
+
 
 extension AddTodoViewController: PassDataDelegate {
     
@@ -176,7 +169,6 @@ extension AddTodoViewController: PassDataDelegate {
     }
     
 }
-
 
 extension AddTodoViewController: UITextViewDelegate {
     
@@ -201,5 +193,23 @@ extension AddTodoViewController: UITextViewDelegate {
         if textView.textColor == .white {
             self.textView = textView.text
         }
+    }
+}
+
+extension AddTodoViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            image = pickedImage
+            
+            mainView.tableView.reloadData()
+        }
+        
+        dismiss(animated: true)
     }
 }

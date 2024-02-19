@@ -7,6 +7,7 @@
 
 import UIKit
 import RealmSwift
+import FSCalendar
 
 final class DetailTodoListViewController: BaseViewController {
     
@@ -24,9 +25,16 @@ final class DetailTodoListViewController: BaseViewController {
         
         configureNavigationBar()
         
+        readTodoData()
+        
+        configureView()
+        
         mainView.tableView.dataSource = self
         mainView.tableView.delegate = self
-        readTodoData()
+        
+        mainView.calendar.delegate = self
+        mainView.calendar.dataSource = self
+        
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -38,6 +46,12 @@ final class DetailTodoListViewController: BaseViewController {
             showToast(message: "알림을 등록해보세요!")
         }
     }
+    
+    override func configureView() {
+        mainView.fetchTodoBtn.setTitle(mainView.navTitle.text! + " 할 일 모두 보기", for: .normal)
+        mainView.fetchTodoBtn.addTarget(self, action: #selector(didFetchTodoBtnTapped), for: .touchUpInside)
+    }
+    
 }
 
 extension DetailTodoListViewController {
@@ -55,7 +69,7 @@ extension DetailTodoListViewController {
         var actionList: [UIAction] = []
         for i in Todo.allCases {
             let action = UIAction(title: "\(i.displayString) 순으로 보기") { _ in
-                self.dataList = self.todoRepository.fetchSortColumn(i, ascending: true)
+                self.dataList = self.todoRepository.fetchSortColumn(table: self.dataList, i, ascending: true)
                 self.mainView.tableView.reloadData()
             }
             
@@ -63,7 +77,7 @@ extension DetailTodoListViewController {
         }
         
         let action = UIAction(title: "우선순위", subtitle: "낮음") { _ in
-            self.dataList = self.todoRepository.fetchFilterRowPriority()
+            self.dataList = self.todoRepository.fetchFilterRowPriority(table: self.dataList)
             self.mainView.tableView.reloadData()
         }
         
@@ -75,6 +89,9 @@ extension DetailTodoListViewController {
         navigationItem.rightBarButtonItem = rightBtnItem
     }
     
+    @objc func didFetchTodoBtnTapped() {
+        readTodoData()
+    }
 }
 
 extension DetailTodoListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -98,7 +115,7 @@ extension DetailTodoListViewController: UITableViewDelegate, UITableViewDataSour
         
         cell.titleLabel.text = row.title
         cell.memoLabel.text = row.memo
-        cell.deadLineLabel.text = CustomDateFormatter.shared.formatDateString(date: row.deadLineDate)
+        cell.deadLineLabel.text = DateManager.shared.formatDateString(date: row.deadLineDate)
         
         if let tag = row.tag, !tag.isEmpty {
             cell.tagLabel.text = "#\(tag)"
@@ -113,6 +130,10 @@ extension DetailTodoListViewController: UITableViewDelegate, UITableViewDataSour
         
         if row.priority != 0 {
             cell.priorityLabel.text = "우선순위 : \(Priority.checkedPriority(segmentIndex: row.priority))"
+        }
+        
+        if let image = loadImageToDocument(filename: "\(row.id)") {
+            cell.photoImageView.image = image
         }
         
         if indexPath.row == dataList.count - 1 {
@@ -136,6 +157,7 @@ extension DetailTodoListViewController: UITableViewDelegate, UITableViewDataSour
             print(action, view, completionHandler)
             completionHandler(true)
         }
+        
         favorite.backgroundColor = .systemBlue
         favorite.image = UIImage(systemName: "star")
         
@@ -171,6 +193,20 @@ extension DetailTodoListViewController: checkBtnTappedDelegate {
 
 extension DetailTodoListViewController: PassTodoDelegate {
     func fetchTodoReceived() {
+        mainView.tableView.reloadData()
+    }
+}
+
+extension DetailTodoListViewController: FSCalendarDelegate, FSCalendarDataSource {
+    
+    func calendar(_ calendar: FSCalendar, numberOfEventsFor date: Date) -> Int {
+        return dataList.filter(DateManager.shared.query(queryType: .today, date: date)).count
+    }
+    
+    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+        let data = todoRepository.fetchFilterTodoList(navTitleText: mainView.navTitle.text!)
+        dataList = data.filter(DateManager.shared.query(queryType: .today, date: date))
+        
         mainView.tableView.reloadData()
     }
 }

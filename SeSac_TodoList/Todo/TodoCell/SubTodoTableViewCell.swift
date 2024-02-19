@@ -10,6 +10,13 @@ import SnapKit
 
 class SubTodoTableViewCell: BaseTableViewCell {
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        subTitleLabel.text = nil
+        photoImageView.image = nil
+    }
+    
     let titleLabel = WhiteTitleLabel().then {
         $0.font = .systemFont(ofSize: 17)
     }
@@ -19,10 +26,13 @@ class SubTodoTableViewCell: BaseTableViewCell {
         $0.textColor = .systemGray5
     }
     
+    let photoImageView = UIImageView()
+    
     override func configureHierarchy() {
         [
             titleLabel,
             subTitleLabel,
+            photoImageView,
         ].forEach { contentView.addSubview($0) }
     }
     
@@ -35,6 +45,13 @@ class SubTodoTableViewCell: BaseTableViewCell {
         subTitleLabel.snp.makeConstraints { make in
             make.centerY.equalTo(contentView)
             make.trailing.equalTo(contentView).offset(-16)
+        }
+        
+        photoImageView.snp.makeConstraints { make in
+            make.centerY.equalTo(contentView)
+            make.trailing.equalTo(contentView).offset(-16)
+            make.width.equalTo(contentView).dividedBy(3)
+            make.height.equalTo(44)
         }
     }
     

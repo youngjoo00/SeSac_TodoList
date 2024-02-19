@@ -23,33 +23,6 @@ final class TodoTableRepository {
         }
     }
     
-    // 도대체 오늘 날짜랑 예정날짜 구해서 필터링하는거 어떻게 하는거지..?
-    private func fetch() -> Results<TodoModel> {
-        return realm.objects(TodoModel.self)
-    }
-    
-    private func fetchFilterToday() -> Results<TodoModel> {
-        let today = CustomDateFormatter.shared.todayDate()
-        
-        return fetch().where {
-            $0.deadLineDate == today && $0.complete == false
-        }
-    }
-    
-    private func fetchFilterExpected() -> Results<TodoModel> {
-        let today = CustomDateFormatter.shared.todayDate()
-        
-        return fetch().where {
-            $0.deadLineDate > today && $0.complete == false
-        }
-    }
-    
-    private func fetchFilterComplete() -> Results<TodoModel> {
-        return fetch().where {
-            $0.complete == true
-        }
-    }
-    
     /// 받아온 데이터를 각 필터링에 맞게 카운트를 올려줌
     func fetchTodoListCount() -> [TodoList: Int] {
         
@@ -65,12 +38,12 @@ final class TodoTableRepository {
     }
     
     /// 원하는 컬럼 기준으로 오름차순 or 내림차순정렬 후 가져오기
-    func fetchSortColumn(_ byKeyPath: Todo, ascending: Bool) -> Results<TodoModel> {
-        return fetch().sorted(byKeyPath: byKeyPath.rawValue, ascending: ascending)
+    func fetchSortColumn(table: Results<TodoModel>,_ byKeyPath: Todo, ascending: Bool) -> Results<TodoModel> {
+        return table.sorted(byKeyPath: byKeyPath.rawValue, ascending: ascending)
     }
 
-    func fetchFilterRowPriority() -> Results<TodoModel> {
-        return fetch().where {
+    func fetchFilterRowPriority(table: Results<TodoModel>) -> Results<TodoModel> {
+        return table.where {
             $0.priority == 1
         }
     }
@@ -122,4 +95,30 @@ final class TodoTableRepository {
             print(error)
         }
     }
+}
+
+// MARK: - Private
+extension TodoTableRepository {
+    
+    /// 전체 테이블 값 가져오기
+    private func fetch() -> Results<TodoModel> {
+        return realm.objects(TodoModel.self)
+    }
+    
+    /// 오늘 날짜값만 필터링해서 가져옵니다.
+    private func fetchFilterToday() -> Results<TodoModel> {
+        return fetch().filter(DateManager.shared.query(queryType: .today, date: Date()))
+    }
+    
+    /// 예정된 날짜만 필터링해서 가져옵니다.
+    private func fetchFilterExpected() -> Results<TodoModel> {
+        return fetch().filter(DateManager.shared.query(queryType: .expected, date: Date()))
+    }
+    
+    private func fetchFilterComplete() -> Results<TodoModel> {
+        return fetch().where {
+            $0.complete == true
+        }
+    }
+    
 }
