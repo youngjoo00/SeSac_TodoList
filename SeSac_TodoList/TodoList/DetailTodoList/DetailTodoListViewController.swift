@@ -162,6 +162,8 @@ extension DetailTodoListViewController: UITableViewDelegate, UITableViewDataSour
         
         let delete = UIContextualAction(style: .destructive, title: "삭제") { action, view, completionHandler in
             let item = self.dataList[indexPath.row]
+            
+            self.removeImageFromDocument(filename: "\(item.id)")
             self.todoRepository.deleteItem(item)
             
             tableView.reloadData()

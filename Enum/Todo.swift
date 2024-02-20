@@ -24,7 +24,7 @@ enum Todo: String, CaseIterable {
     }
     
     // 뭔가 좀 많이 이상하지만 일단 구현
-    static func returnStringList(_ todoData: TodoModel) -> [Int: String] {
+    static func returnStringList(todoData: TodoModel) -> [Int: String] {
 
         var dic: [Int: String] = [:]
         
@@ -37,7 +37,7 @@ enum Todo: String, CaseIterable {
         }
         
         dic[4] = Priority.checkedPriority(segmentIndex: todoData.priority)
-
+        //dic[5] = list.title
         return dic
     }
 }

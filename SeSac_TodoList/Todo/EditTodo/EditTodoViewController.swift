@@ -21,6 +21,7 @@ final class EditTodoViewController: BaseViewController {
     var priority: Int = 0
     var deadLineDate: Date?
     var image: UIImage?
+    var list: ListModel?
     
     var todoDelegate: PassTodoDelegate?
 
@@ -43,7 +44,8 @@ final class EditTodoViewController: BaseViewController {
         
         configureNavigationBar()
         
-        subTitleDic = Todo.returnStringList(todoData)
+        //guard let list else { return }
+        subTitleDic = Todo.returnStringList(todoData: todoData)
         textField = todoData.title
         textView = todoData.memo
         priority = todoData.priority
@@ -170,11 +172,16 @@ extension EditTodoViewController: UITableViewDelegate, UITableViewDataSource {
             vc.delegate = self
             
             transition(viewController: vc, style: .present)
+        } else if indexPath.section == 5 {
+            let vc = DetailTodoList.allCases[indexPath.section].viewController as! ListViewContorller
+            vc.section = indexPath.section
+            vc.delegate = self
+            transition(viewController: vc, style: .push)
         }
     }
 }
 
-extension EditTodoViewController: PassDataDelegate {
+extension EditTodoViewController: PassDataDelegate, PassListStringDelegate {
     
     func priorityReceived(segmentIndex priority: Int, section: Int) {
         self.priority = priority
@@ -182,6 +189,10 @@ extension EditTodoViewController: PassDataDelegate {
         self.subTitleDic[section + 1] = priorityString
     }
     
+    func listReceived(list: ListModel, section: Int) {
+        self.list = list
+        self.subTitleDic[section + 1] = list.title
+    }
 }
 
 extension EditTodoViewController: UITextViewDelegate {

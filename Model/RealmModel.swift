@@ -31,6 +31,7 @@ class TodoModel: Object {
     @Persisted var tag: String?
     @Persisted var priority: Int
     @Persisted var complete: Bool
+    @Persisted(originProperty: "todoList") var superTable: LinkingObjects<ListModel>
     
     convenience init(title: String, memo: String? = nil, regDate: Date, deadLineDate: Date, tag: String? = nil, priority: Int, complete: Bool) {
         self.init()

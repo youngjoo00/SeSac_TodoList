@@ -28,6 +28,7 @@ final class Repository {
         do {
             try realm.write {
                 list.todoList.append(todo)
+                print("Realm Create", realm.configuration.fileURL!)
             }
         } catch {
             print("error", error)
