@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SnapKit
 import Then
 import FSCalendar
 
@@ -21,6 +20,7 @@ final class DetailTodoListView: BaseView {
     }
     
     let fetchTodoBtn = UIButton().then {
+        $0.setTitle("초기화", for: .normal)
         $0.setTitleColor(.white, for: .normal)
     }
     

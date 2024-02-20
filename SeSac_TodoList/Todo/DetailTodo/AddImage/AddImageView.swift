@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SnapKit
 import Then
 
 final class AddImageView: BaseView {

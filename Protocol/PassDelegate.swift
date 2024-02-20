@@ -11,6 +11,14 @@ protocol PassTodoDelegate {
     func fetchTodoReceived()
 }
 
+protocol PassListDelegate {
+    func fetchListReceived()
+}
+
 protocol PassDataDelegate {
     func priorityReceived(segmentIndex: Int, section: Int)
+}
+
+protocol PassListStringDelegate {
+    func listReceived(list: ListModel, section: Int)
 }

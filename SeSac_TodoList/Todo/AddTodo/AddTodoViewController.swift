@@ -11,16 +11,17 @@ import RealmSwift
 final class AddTodoViewController: BaseViewController {
     
     let mainView = AddTodoView()
-    let todoRepository = TodoTableRepository()
+    let todoRepository = Repository()
     
     var textField: String?
     var textView: String?
     var priority: Int = 0
     var deadLineDate: Date?
     var image: UIImage?
+    var list: ListModel?
     
     var todoDelegate: PassTodoDelegate?
-
+    
     var subTitleDic: [Int: String] = [:] {
         didSet {
             self.mainView.tableView.reloadData()
@@ -34,7 +35,7 @@ final class AddTodoViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0)
+        view.backgroundColor = .darkGrayBackgroundColor
         
         configureNavigationBar()
         
@@ -47,14 +48,15 @@ final class AddTodoViewController: BaseViewController {
     }
     
     @objc func didRightBarButtonItemTapped() {
-        guard let title = textField, let deadLineDate = deadLineDate else {
-            showToast(message: "제목, 마감일은 꼭 입력해주세요")
+        guard let title = textField, let deadLineDate = deadLineDate, let list = list else {
+            showToast(message: "제목, 마감일, 목록은 꼭 입력해주세요")
             return
         }
         
         let data = TodoModel(title: title, memo: textView, regDate: Date(), deadLineDate: deadLineDate, tag: subTitleDic[2], priority: priority, complete: false)
-        
-        todoRepository.createItem(item: data)
+
+        todoRepository.createTodoList(list: list, todo: data)
+//        todoRepository.createItem(item: data)
         
         if let image = image {
             saveImageToDocument(image: image, filename: "\(data.id)")
@@ -155,12 +157,17 @@ extension AddTodoViewController: UITableViewDelegate, UITableViewDataSource {
             vc.delegate = self
             
             transition(viewController: vc, style: .present)
+        } else if indexPath.section == 5 {
+            let vc = DetailTodoList.allCases[indexPath.section].viewController as! ListViewContorller
+            vc.section = indexPath.section
+            vc.delegate = self
+            transition(viewController: vc, style: .push)
         }
     }
 }
 
 
-extension AddTodoViewController: PassDataDelegate {
+extension AddTodoViewController: PassDataDelegate, PassListStringDelegate {
     
     func priorityReceived(segmentIndex priority: Int, section: Int) {
         self.priority = priority
@@ -168,6 +175,10 @@ extension AddTodoViewController: PassDataDelegate {
         self.subTitleDic[section] = priorityString
     }
     
+    func listReceived(list: ListModel, section: Int) {
+        self.list = list
+        self.subTitleDic[section] = list.title
+    }
 }
 
 extension AddTodoViewController: UITextViewDelegate {

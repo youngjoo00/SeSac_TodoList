@@ -18,6 +18,8 @@ extension UITextField {
     
     func configureView() {
         textColor = .white
+        autocorrectionType = .no
+        spellCheckingType = .no
     }
     
     func setPlaceholder(placeholder: String, color: UIColor) {

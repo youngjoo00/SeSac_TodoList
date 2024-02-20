@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SnapKit
 import Then
 
 final class TodoListView: BaseView {
@@ -31,11 +30,16 @@ final class TodoListView: BaseView {
         $0.configuration = configuration
     }
     
+    let tableView = UITableView(frame: .zero, style: .insetGrouped).then {
+        $0.backgroundColor = .clear
+        $0.register(ListTableViewCell.self, forCellReuseIdentifier: ListTableViewCell.identifier)
+    }
+    
     override func configureHierarchy() {
         [
             titleLabel,
             collectionView,
-            //toolBar
+            tableView,
         ].forEach { addSubview($0) }
     }
     
@@ -47,13 +51,34 @@ final class TodoListView: BaseView {
         
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom)
-            make.horizontalEdges.bottom.equalToSuperview()
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(250)
         }
         
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(collectionView.snp.bottom)
+            make.horizontalEdges.bottom.equalTo(safeAreaLayoutGuide)
+        }
     }
     
-    override func configureView() {
+    func createHeaderView() -> UIView {
+        let headerView = UIView().then {
+            $0.backgroundColor = .clear
+        }
         
+        let titleLabel = WhiteTitleLabel().then {
+            $0.text = "나의 목록"
+            $0.font = .boldSystemFont(ofSize: 25)
+        }
+        
+        headerView.addSubview(titleLabel)
+        
+        titleLabel.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.horizontalEdges.equalToSuperview().inset(16)
+        }
+        
+        return headerView
     }
 }
 

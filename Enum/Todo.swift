@@ -37,7 +37,7 @@ enum Todo: String, CaseIterable {
         }
         
         dic[4] = Priority.checkedPriority(segmentIndex: todoData.priority)
-        
+
         return dic
     }
 }

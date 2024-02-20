@@ -13,6 +13,7 @@ enum DetailTodoList: String, CaseIterable {
     case tag = "태그"
     case priority = "우선 순위"
     case addImage = "이미지 추가"
+    case list = "목록"
     
     var viewController: UIViewController {
         switch self {
@@ -26,6 +27,8 @@ enum DetailTodoList: String, CaseIterable {
             return PriorityViewController()
         case .addImage:
             return AddImageViewController()
+        case .list:
+            return ListViewContorller()
         }
     }
     

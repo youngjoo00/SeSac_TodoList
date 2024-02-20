@@ -12,7 +12,7 @@ import FSCalendar
 final class DetailTodoListViewController: BaseViewController {
     
     let mainView = DetailTodoListView()
-    let todoRepository = TodoTableRepository()
+    let todoRepository = Repository()
     
     var dataList: Results<TodoModel>!
     
@@ -48,7 +48,6 @@ final class DetailTodoListViewController: BaseViewController {
     }
     
     override func configureView() {
-        mainView.fetchTodoBtn.setTitle(mainView.navTitle.text! + " 할 일 모두 보기", for: .normal)
         mainView.fetchTodoBtn.addTarget(self, action: #selector(didFetchTodoBtnTapped), for: .touchUpInside)
     }
     

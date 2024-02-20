@@ -6,12 +6,14 @@
 //
 
 import UIKit
+import RealmSwift
 
 final class TodoListViewController: BaseViewController {
 
     let mainView = TodoListView()
-    var todoRepository = TodoTableRepository()
+    var todoRepository = Repository()
     var countDic: [TodoList: Int] = [:]
+    var listData: Results<ListModel>?
     
     override func loadView() {
         self.view = mainView
@@ -23,15 +25,13 @@ final class TodoListViewController: BaseViewController {
         mainView.collectionView.dataSource = self
         mainView.collectionView.delegate = self
         
+        mainView.tableView.dataSource = self
+        mainView.tableView.delegate = self
+        
         self.navigationController?.isToolbarHidden = false
         
         configureToolBar()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(todoModelCountNotification), name: NSNotification.Name("postTodoModelCount"), object: nil)
-    }
     
-    @objc func todoModelCountNotification(notification: NSNotification) {
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -39,6 +39,7 @@ final class TodoListViewController: BaseViewController {
     
         navigationController?.isToolbarHidden = false
         fetchTodoCountData()
+        fetchListData()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -54,7 +55,9 @@ final class TodoListViewController: BaseViewController {
     }
 
     @objc func didAddListBtnTapped() {
-        print(#function)
+        let vc = AddListViewController()
+        vc.listDelegate = self
+        transition(viewController: vc, style: .presentNavigation)
     }
     
 }
@@ -74,12 +77,18 @@ extension TodoListViewController {
     }
     
     func fetchTodoCountData() {
-        
         countDic = todoRepository.fetchTodoListCount()
         mainView.collectionView.reloadData()
     }
+    
+    func fetchListData() {
+        listData = todoRepository.fetchTable()
+        mainView.tableView.reloadData()
+    }
+    
 }
 
+// MARK: - CollectionView
 extension TodoListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -106,8 +115,48 @@ extension TodoListViewController: UICollectionViewDelegate, UICollectionViewData
     }
 }
 
-extension TodoListViewController: PassTodoDelegate {
+// MARK: - TableView
+extension TodoListViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 50
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return mainView.createHeaderView()
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard let listData else { return 0 }
+        return listData.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: ListTableViewCell.identifier, for: indexPath) as! ListTableViewCell
+        
+        guard let listData else { return cell }
+        
+        let row = listData[indexPath.row]
+        
+        // View쪽은 View만 그리는 역할만 시켜주자
+        cell.updateCell(title: row.title, count: row.todoList.count)
+        
+        return cell
+    }
+    
+    
+}
+
+// MARK: - PassDelegate
+extension TodoListViewController: PassTodoDelegate, PassListDelegate {
+    
     func fetchTodoReceived() {
         fetchTodoCountData()
+        fetchListReceived()
+    }
+    
+    func fetchListReceived() {
+        fetchTodoCountData()
+        fetchListData()
     }
 }

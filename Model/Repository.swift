@@ -8,11 +8,11 @@
 import Foundation
 import RealmSwift
 
-final class TodoTableRepository {
+final class Repository {
     
     private let realm = try! Realm()
     
-    func createItem(item: TodoModel) {
+    func createItem<T: Object>(item: T) {
         do {
             try realm.write { // 쓰기 트랜잭션을 시작하는 메서드
                 realm.add(item)
@@ -21,6 +21,21 @@ final class TodoTableRepository {
         } catch {
             print("error")
         }
+    }
+    
+    /// List 내부의 todoList 에 todo 레코드 삽입
+    func createTodoList(list: ListModel, todo: TodoModel) {
+        do {
+            try realm.write {
+                list.todoList.append(todo)
+            }
+        } catch {
+            print("error", error)
+        }
+    }
+    /// 테이블 가져오기
+    func fetchTable<T: Object>() -> Results<T> {
+        return realm.objects(T.self)
     }
     
     /// 받아온 데이터를 각 필터링에 맞게 카운트를 올려줌
@@ -49,7 +64,7 @@ final class TodoTableRepository {
     }
     
     /// record 삭제, TodoModel 을 갖는 아이템을 매개변수로 사용
-    func deleteItem(_ item: TodoModel) {
+    func deleteItem<T: Object>(_ item: T) {
         do {
             try realm.write {
                 realm.delete(item)
@@ -98,7 +113,7 @@ final class TodoTableRepository {
 }
 
 // MARK: - Private
-extension TodoTableRepository {
+extension Repository {
     
     /// 전체 테이블 값 가져오기
     private func fetch() -> Results<TodoModel> {

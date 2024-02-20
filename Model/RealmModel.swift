@@ -8,6 +8,20 @@
 import Foundation
 import RealmSwift
 
+class ListModel: Object {
+    @Persisted(primaryKey: true) var id: ObjectId
+    @Persisted var title: String
+    @Persisted var regDate: Date
+    @Persisted var todoList: List<TodoModel>
+    
+    convenience init(title: String, regDate: Date) {
+        self.init()
+        self.title = title
+        self.regDate = regDate
+        self.todoList = todoList
+    }
+}
+
 class TodoModel: Object {
     @Persisted(primaryKey: true) var id: ObjectId
     @Persisted var title: String
@@ -29,3 +43,5 @@ class TodoModel: Object {
         self.complete = complete
     }
 }
+
+

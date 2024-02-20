@@ -11,7 +11,7 @@ import RealmSwift
 final class EditTodoViewController: BaseViewController {
     
     let mainView = AddTodoView()
-    let todoRepository = TodoTableRepository()
+    let todoRepository = Repository()
     
     // 받아올 데이터
     var todoData: TodoModel!
