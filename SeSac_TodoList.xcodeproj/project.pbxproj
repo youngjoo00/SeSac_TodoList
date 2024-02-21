@@ -145,7 +145,6 @@
 			isa = PBXGroup;
 			children = (
 				8E7FADF32B7DF8E4000CB6EC /* RealmModel.swift */,
-				8E7FAE0F2B7FA759000CB6EC /* Repository.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -195,12 +194,21 @@
 			path = Protocol;
 			sourceTree = "<group>";
 		};
+		8E8A7B132B86456600B68F45 /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				8E7FAE0F2B7FA759000CB6EC /* Repository.swift */,
+			);
+			path = Repository;
+			sourceTree = "<group>";
+		};
 		8E9513392B7CF4CD0034C500 = {
 			isa = PBXGroup;
 			children = (
 				8E9513442B7CF4CD0034C500 /* SeSac_TodoList */,
 				8E7FAE282B82534B000CB6EC /* Protocol */,
 				8E7FAE1E2B824DCA000CB6EC /* Manager */,
+				8E8A7B132B86456600B68F45 /* Repository */,
 				8E7FADF22B7DF8CE000CB6EC /* Model */,
 				8E9513852B7CF5860034C500 /* Extension */,
 				8E95137E2B7CF5810034C500 /* Enum */,

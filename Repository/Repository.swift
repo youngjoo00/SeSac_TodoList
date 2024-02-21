@@ -34,6 +34,7 @@ final class Repository {
             print("error", error)
         }
     }
+    
     /// 테이블 가져오기
     func fetchTable<T: Object>() -> Results<T> {
         return realm.objects(T.self)
