@@ -1,16 +1,18 @@
 //
-//  EditTodoView.swift
+//  AddTodoView.swift
 //  SeSac_TodoList
 //
-//  Created by youngjoo on 2/18/24.
+//  Created by youngjoo on 2/14/24.
 //
 
 import UIKit
+import SnapKit
+import Then
 
-final class EditTodoView: BaseView {
+final class TodoView: BaseView {
     
     let navTitle = WhiteTitleLabel().then {
-        $0.text = "세부사항"
+        $0.text = "새로운 할 일"
     }
     
     let tableView = UITableView(frame: .zero, style: .insetGrouped).then {

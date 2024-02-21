@@ -1,37 +1,36 @@
 //
-//  EditTodoViewController.swift
+//  AddTodoViewController.swift
 //  SeSac_TodoList
 //
-//  Created by youngjoo on 2/18/24.
+//  Created by youngjoo on 2/14/24.
 //
 
 import UIKit
 import RealmSwift
 
-final class EditTodoViewController: BaseViewController {
+final class TodoViewController: BaseViewController {
     
-    let mainView = AddTodoView()
+    let mainView = TodoView()
     let todoRepository = Repository()
     
     // 받아올 데이터
     var todoData: TodoModel!
+    var selectMode: SelectMode?
     
     var textField: String?
     var textView: String?
-    var priority: Int = 0
     var deadLineDate: Date?
+    var priority: Int = 0
     var image: UIImage?
     var list: ListModel?
     
     var todoDelegate: PassTodoDelegate?
-
+    
     var subTitleDic: [Int: String] = [:] {
         didSet {
             self.mainView.tableView.reloadData()
         }
     }
-    
-    var isMemoEdited = false
     
     override func loadView() {
         self.view = mainView
@@ -40,17 +39,10 @@ final class EditTodoViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0)
+        view.backgroundColor = .darkGrayBackgroundColor
         
         configureNavigationBar()
-        
-        //guard let list else { return }
-        subTitleDic = Todo.returnStringList(todoData: todoData)
-        textField = todoData.title
-        textView = todoData.memo
-        priority = todoData.priority
-        deadLineDate = todoData.deadLineDate
-        image = loadImageToDocument(filename: "\(todoData.id)")
+        checkMode()
         
         mainView.tableView.delegate = self
         mainView.tableView.dataSource = self
@@ -61,19 +53,54 @@ final class EditTodoViewController: BaseViewController {
     }
     
     @objc func didRightBarButtonItemTapped() {
-
-        guard let title = textField, let deadLineDate = deadLineDate else {
-            showToast(message: "제목, 마감일은 꼭 입력해주세요")
+        
+        guard let title = textField, let deadLineDate = deadLineDate, let list = list,
+              (!title.isEmpty && !DateManager.shared.formatDateString(date: deadLineDate).isEmpty && !list.title.isEmpty) else {
+            showToast(message: "제목, 마감일, 목록은 꼭 입력해주세요")
             return
         }
-
-        todoRepository.updateItem(todoData, title: title, memo: textView ?? "", deadLineDate: deadLineDate, tag: subTitleDic[3], priority: priority)
         
-        if let image = image {
-            saveImageToDocument(image: image, filename: "\(todoData.id)")
+        guard let selectMode else { return }
+        
+        switch selectMode {
+        case .create:
+            createData()
+        case .update:
+            updateData()
         }
         
+        func createData() {
+            let data = TodoModel(title: title,
+                                 memo: textView ?? "",
+                                 regDate: Date(),
+                                 deadLineDate: deadLineDate,
+                                 tag: subTitleDic[3],
+                                 priority: priority,
+                                 complete: false)
+            todoRepository.createTodoList(list: list, todo: data)
+            
+            if let image = image {
+                saveImageToDocument(image: image, filename: "\(data.id)")
+            }
+        }
+        
+        func updateData() {
+            todoRepository.updateItem(todoData,
+                                      title: title,
+                                      memo: textView ?? "",
+                                      deadLineDate: deadLineDate,
+                                      tag: subTitleDic[3],
+                                      priority: priority)
+            
+            if let image = image {
+                saveImageToDocument(image: image, filename: "\(todoData.id)")
+            }
+        }
+        
+        //        todoRepository.createItem(item: data)
+        
         todoDelegate?.fetchTodoReceived()
+        
         dismiss(animated: true)
     }
     
@@ -81,7 +108,7 @@ final class EditTodoViewController: BaseViewController {
         guard let section = notification.userInfo?["section"] as? Int else { return }
         guard let tag = notification.userInfo?["tag"] as? String else { return }
         
-        subTitleDic[section + 1] = tag
+        subTitleDic[section] = tag
     }
     
     @objc func didChangeValueTextField(_ textField: UITextField, indexPath: IndexPath) {
@@ -89,7 +116,7 @@ final class EditTodoViewController: BaseViewController {
     }
 }
 
-extension EditTodoViewController {
+extension TodoViewController {
     
     func configureNavigationBar() {
         let leftBtnItem = UIBarButtonItem(title: "취소", style: .plain, target: self, action: #selector(didLeftBarButtonItemTapped))
@@ -102,9 +129,26 @@ extension EditTodoViewController {
         
         navigationItem.titleView = mainView.navTitle
     }
+    
+    func checkMode() {
+        guard let mode = selectMode else { return }
+        
+        switch mode {
+        case .create:
+            textView = "메모"
+        case .update:
+            subTitleDic = Todo.returnStringList(todoData: todoData)
+            textField = todoData.title
+            textView = todoData.memo?.isEmpty == true ? "메모" : todoData.memo
+            deadLineDate = todoData.deadLineDate
+            priority = todoData.priority
+            image = loadImageToDocument(filename: "\(todoData.id)")
+            list = todoData.superTable.first
+        }
+    }
 }
 
-extension EditTodoViewController: UITableViewDelegate, UITableViewDataSource {
+extension TodoViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return DetailTodoList.allCases.count
@@ -120,17 +164,16 @@ extension EditTodoViewController: UITableViewDelegate, UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: TitleMemoTableViewCell.identifier, for: indexPath) as! TitleMemoTableViewCell
             
             cell.titleTextField.addTarget(self, action: #selector(didChangeValueTextField), for: .editingChanged)
-            cell.titleTextField.text = subTitleDic[0]
+            cell.titleTextField.text = textField
             
             cell.memoTextView.delegate = self
-            cell.memoTextView.text = subTitleDic[1]
+            cell.memoTextView.text = textView
             
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: SubTodoTableViewCell.identifier, for: indexPath) as! SubTodoTableViewCell
             
             let section = DetailTodoList.allCases[indexPath.section].rawValue
-
             cell.titleLabel.text = section
             
             if section == "이미지 추가" {
@@ -145,7 +188,7 @@ extension EditTodoViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
+        
         if indexPath.section == 1 {
             let vc = DetailTodoList.allCases[indexPath.section].viewController as! DateViewController
             vc.dateSpace = { date in
@@ -160,7 +203,6 @@ extension EditTodoViewController: UITableViewDelegate, UITableViewDataSource {
             vc.tag = subTitleDic[3] ?? ""
             NotificationCenter.default.addObserver(self, selector: #selector(tagNotification), name: NSNotification.Name("postTag"), object: nil)
             transition(viewController: vc, style: .push)
-            
         } else if indexPath.section == 3 {
             let vc = DetailTodoList.allCases[indexPath.section].viewController as! PriorityViewController
             vc.segmentIndex = priority
@@ -181,7 +223,8 @@ extension EditTodoViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension EditTodoViewController: PassDataDelegate, PassListStringDelegate {
+
+extension TodoViewController: PassDataDelegate, PassListStringDelegate {
     
     func priorityReceived(segmentIndex priority: Int, section: Int) {
         self.priority = priority
@@ -195,14 +238,14 @@ extension EditTodoViewController: PassDataDelegate, PassListStringDelegate {
     }
 }
 
-extension EditTodoViewController: UITextViewDelegate {
+extension TodoViewController: UITextViewDelegate {
     
     // 편집을 시작했을 때
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.text == "메모" && textView.textColor == .systemGray5 && !isMemoEdited {
+        if textView.text == "메모" && self.textView == "메모" {
             textView.text = nil
-            textView.textColor = .white
         }
+        textView.textColor = .white
     }
     
     // 편집이 끝났을 때
@@ -214,14 +257,11 @@ extension EditTodoViewController: UITextViewDelegate {
     }
     
     func textViewDidChange(_ textView: UITextView) {
-        if textView.textColor == .white {
-            self.textView = textView.text
-            isMemoEdited = true
-        }
+        self.textView = textView.text
     }
 }
 
-extension EditTodoViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension TodoViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true)
@@ -231,6 +271,7 @@ extension EditTodoViewController: UIImagePickerControllerDelegate, UINavigationC
         
         if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             image = pickedImage
+            
             mainView.tableView.reloadData()
         }
         

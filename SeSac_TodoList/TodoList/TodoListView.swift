@@ -84,7 +84,7 @@ final class TodoListView: BaseView {
 
 extension TodoListView {
     
-    static func configureCollectionViewLayout() -> UICollectionViewLayout {
+    private static func configureCollectionViewLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewFlowLayout()
         let spacing: CGFloat = 16
         

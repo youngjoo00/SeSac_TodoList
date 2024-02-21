@@ -28,7 +28,7 @@ final class TagViewController: BaseViewController {
     }
     
     @objc func didRightBarButtonItemTapped() {
-        NotificationCenter.default.post(name: NSNotification.Name("postTag"), object: nil, userInfo: ["tag": mainView.textField.text!, "section": section])
+        NotificationCenter.default.post(name: NSNotification.Name("postTag"), object: nil, userInfo: ["tag": mainView.textField.text!, "section": section + 1])
         navigationController?.popViewController(animated: true)
     }
 }

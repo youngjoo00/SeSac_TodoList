@@ -143,8 +143,10 @@ extension DetailTodoListViewController: UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let vc = EditTodoViewController()
+        
+        let vc = TodoViewController()
         vc.todoData = dataList[indexPath.row]
+        vc.selectMode = .update
         vc.todoDelegate = self
         transition(viewController: vc, style: .presentNavigation)
     }

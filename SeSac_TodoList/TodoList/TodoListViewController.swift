@@ -10,10 +10,10 @@ import RealmSwift
 
 final class TodoListViewController: BaseViewController {
 
-    let mainView = TodoListView()
-    var todoRepository = Repository()
-    var countDic: [TodoList: Int] = [:]
-    var listData: Results<ListModel>?
+    private let mainView = TodoListView()
+    private var todoRepository = Repository()
+    private var countDic: [TodoList: Int] = [:]
+    private var listData: Results<ListModel>?
     
     override func loadView() {
         self.view = mainView
@@ -49,7 +49,8 @@ final class TodoListViewController: BaseViewController {
     }
     
     @objc func didAddTodoBtnTapped() {
-        let vc = AddTodoViewController()
+        let vc = TodoViewController()
+        vc.selectMode = .create
         vc.todoDelegate = self
         transition(viewController: vc, style: .presentNavigation)
     }
@@ -64,7 +65,7 @@ final class TodoListViewController: BaseViewController {
 
 extension TodoListViewController {
     
-    func configureToolBar() {
+    private func configureToolBar() {
         mainView.addTodoBtn.addTarget(self, action: #selector(didAddTodoBtnTapped), for: .touchUpInside)
         
         let addTodoBtnItem = UIBarButtonItem(customView: mainView.addTodoBtn)
@@ -76,12 +77,12 @@ extension TodoListViewController {
         self.toolbarItems = [addTodoBtnItem, flexibleSpace, addListBtnItem]
     }
     
-    func fetchTodoCountData() {
+    private func fetchTodoCountData() {
         countDic = todoRepository.fetchTodoListCount()
         mainView.collectionView.reloadData()
     }
     
-    func fetchListData() {
+    private func fetchListData() {
         listData = todoRepository.fetchTable()
         mainView.tableView.reloadData()
     }
@@ -144,7 +145,9 @@ extension TodoListViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print(indexPath.row)
+    }
 }
 
 // MARK: - PassDelegate

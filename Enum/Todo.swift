@@ -7,6 +7,11 @@
 
 import Foundation
 
+enum SelectMode {
+    case create
+    case update
+}
+
 enum Todo: String, CaseIterable {
     case title
     case deadLineDate
