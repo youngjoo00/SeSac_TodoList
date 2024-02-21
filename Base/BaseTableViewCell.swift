@@ -24,15 +24,10 @@ class BaseTableViewCell: UITableViewCell {
     }
     
 
-    func configureHierarchy() {
-        
-    }
+    func configureHierarchy() { }
     
-    func configureLayout() {
-        
-    }
+    func configureLayout() { }
     
-    func configureView() {
-        
-    }
+    func configureView() { }
+    
 }

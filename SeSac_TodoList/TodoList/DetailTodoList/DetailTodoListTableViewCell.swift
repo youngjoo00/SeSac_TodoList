@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SnapKit
 import Then
 
 /*
@@ -40,40 +39,40 @@ final class DetailTodoListTableViewCell: BaseTableViewCell {
     
     weak var delegate: checkBtnTappedDelegate?
     
-    let checkBtn = UIButton().then {
+    private let checkBtn = UIButton().then {
         $0.tintColor = .systemGray5
         $0.contentMode = .scaleAspectFill
     }
     
-    let stackView = UIStackView().then {
+    private let stackView = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 5
     }
     
-    let titleLabel = WhiteTitleLabel()
+    private let titleLabel = WhiteTitleLabel()
     
-    let memoLabel = UILabel().then {
+    private let memoLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 17)
         $0.textColor = .systemGray5
         $0.numberOfLines = 10
     }
     
-    let deadLineLabel = WhiteTitleLabel().then {
+    private let deadLineLabel = WhiteTitleLabel().then {
         $0.font = .boldSystemFont(ofSize: 15)
     }
     
-    let tagLabel = WhiteTitleLabel().then {
+    private let tagLabel = WhiteTitleLabel().then {
         $0.font = .boldSystemFont(ofSize: 15)
         $0.textColor = .systemBlue
     }
     
-    let priorityLabel = WhiteTitleLabel().then {
+    private let priorityLabel = WhiteTitleLabel().then {
         $0.font = .boldSystemFont(ofSize: 15)
     }
     
-    let photoImageView = UIImageView()
+    private let photoImageView = UIImageView()
     
-    let lineView = LineView()
+    private let lineView = LineView()
     
     override func configureHierarchy() {
         [
@@ -137,3 +136,30 @@ final class DetailTodoListTableViewCell: BaseTableViewCell {
     }
 }
 
+extension DetailTodoListTableViewCell {
+    
+    func updateCell(data: TodoModel, image: UIImage?, isLastRow: Bool) {
+        titleLabel.text = data.title
+        memoLabel.text = data.memo
+        deadLineLabel.text = DateManager.shared.formatDateString(date: data.deadLineDate)
+        
+        if let tag = data.tag, !tag.isEmpty {
+            tagLabel.text = "#\(tag)"
+        }
+        
+        if data.priority != 0 {
+            priorityLabel.text = "우선순위 : \(Priority.checkedPriority(segmentIndex: data.priority))"
+        }
+        
+        if data.complete {
+            checkBtn.setImage(UIImage(systemName: "circle.fill"), for: .normal)
+        } else {
+            checkBtn.setImage(UIImage(systemName: "circle"), for: .normal)
+        }
+
+        photoImageView.image = image
+
+        
+        lineView.isHidden = isLastRow
+    }
+}

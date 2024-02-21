@@ -11,15 +11,17 @@ import Then
 
 final class TodoListCollectionViewCell: BaseCollectionViewCell {
     
-    let mainImageView = UIImageView().then {
+    // updateCell 함수를 통해 VC 에서 셀을 찾을 일이 없으니 private 이 가능해졌다.
+    private let mainImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
         $0.tintColor = .white
     }
     
-    let countLabel = WhiteTitleLabel().then {
+    private let countLabel = WhiteTitleLabel().then {
         $0.font = .boldSystemFont(ofSize: 30)
     }
-    let titleLabel = UILabel().then {
+    
+    private let titleLabel = UILabel().then {
         $0.textColor = .systemGray5
     }
     
@@ -52,5 +54,14 @@ final class TodoListCollectionViewCell: BaseCollectionViewCell {
     override func configureView() {
         backgroundColor = .darkGray
         layer.cornerRadius = 16
+    }
+}
+
+extension TodoListCollectionViewCell {
+    
+    func updateCell(data: TodoList, count: Int) {
+        mainImageView.image = data.image
+        countLabel.text = "\(count)"
+        titleLabel.text = data.rawValue
     }
 }

@@ -102,42 +102,11 @@ extension DetailTodoListViewController: UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: DetailTodoListTableViewCell.identifier, for: indexPath) as! DetailTodoListTableViewCell
         
-        cell.delegate = self
-        
         let row = dataList[indexPath.row]
+        let image = loadImageToDocument(filename: "\(row.id)")
+        let isLastRow = (indexPath.row == dataList.count - 1)
         
-        if row.complete {
-            cell.checkBtn.setImage(UIImage(systemName: "circle.fill"), for: .normal)
-        } else {
-            cell.checkBtn.setImage(UIImage(systemName: "circle"), for: .normal)
-        }
-        
-        cell.titleLabel.text = row.title
-        cell.memoLabel.text = row.memo
-        cell.deadLineLabel.text = DateManager.shared.formatDateString(date: row.deadLineDate)
-        
-        if let tag = row.tag, !tag.isEmpty {
-            cell.tagLabel.text = "#\(tag)"
-        }
-        
-        //      이 부분을 넣어주면 셀의 데이터를 명확하게 지정해주니 셀이 재사용되어 뷰가 보여도, 정상적으로 잘 나타나는데
-        //      이 부분이 없으면 여기저기 셀에 개판도 이런 개판이 없다.
-        //      하지만, prepareForReuse 함수를 이용해 해결할 수 있었다.
-        //        else {
-        //            cell.tagLabel.text = nil
-        //        }
-        
-        if row.priority != 0 {
-            cell.priorityLabel.text = "우선순위 : \(Priority.checkedPriority(segmentIndex: row.priority))"
-        }
-        
-        if let image = loadImageToDocument(filename: "\(row.id)") {
-            cell.photoImageView.image = image
-        }
-        
-        if indexPath.row == dataList.count - 1 {
-            cell.lineView.isHidden = true
-        }
+        cell.updateCell(data: row, image: image, isLastRow: isLastRow)
         
         return cell
     }
@@ -183,6 +152,7 @@ extension DetailTodoListViewController: UITableViewDelegate, UITableViewDataSour
 }
 
 extension DetailTodoListViewController: checkBtnTappedDelegate {
+    
     func cellCheckBtnTapped(cell: UITableViewCell) {
         // btn 을 눌렀을 때 감지한 셀의 indexPath 가져오기
         if let indexPath = mainView.tableView.indexPath(for: cell) {
@@ -195,6 +165,7 @@ extension DetailTodoListViewController: checkBtnTappedDelegate {
 }
 
 extension DetailTodoListViewController: PassTodoDelegate {
+    
     func fetchTodoReceived() {
         mainView.tableView.reloadData()
     }

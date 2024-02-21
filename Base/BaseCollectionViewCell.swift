@@ -22,15 +22,10 @@ class BaseCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureHierarchy() {
-        
-    }
+    func configureHierarchy() { }
     
-    func configureLayout() {
-        
-    }
+    func configureLayout() { }
     
-    func configureView() {
-        
-    }
+    func configureView() { }
+    
 }

@@ -8,18 +8,18 @@
 import UIKit
 import Then
 
-class ListTableViewCell: BaseTableViewCell {
+final class ListTableViewCell: BaseTableViewCell {
     
-    let mainImageView = UIImageView().then {
+    private let mainImageView = UIImageView().then {
         $0.image = UIImage(systemName: "list.bullet.circle.fill")
         $0.tintColor = .white
     }
     
-    let titleLabel = WhiteTitleLabel().then {
+    private let titleLabel = WhiteTitleLabel().then {
         $0.font = .systemFont(ofSize: 20)
     }
     
-    let countLabel = UILabel().then {
+    private let countLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 17)
         $0.textColor = .systemGray4
     }

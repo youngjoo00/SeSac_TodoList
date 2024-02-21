@@ -10,10 +10,10 @@ import RealmSwift
 
 final class TodoListViewController: BaseViewController {
 
-    private let mainView = TodoListView()
-    private var todoRepository = Repository()
-    private var countDic: [TodoList: Int] = [:]
-    private var listData: Results<ListModel>?
+    let mainView = TodoListView()
+    var todoRepository = Repository()
+    var countDic: [TodoList: Int] = [:]
+    var listData: Results<ListModel>?
     
     override func loadView() {
         self.view = mainView
@@ -100,12 +100,10 @@ extension TodoListViewController: UICollectionViewDelegate, UICollectionViewData
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TodoListCollectionViewCell.identifier, for: indexPath) as! TodoListCollectionViewCell
         
         let row = TodoList.allCases[indexPath.item]
-        cell.mainImageView.image = row.image
-
         let count = countDic[row] ?? 0
-        cell.countLabel.text = "\(count)"
         
-        cell.titleLabel.text = row.rawValue
+        cell.updateCell(data: row, count: count)
+
         return cell
     }
     
