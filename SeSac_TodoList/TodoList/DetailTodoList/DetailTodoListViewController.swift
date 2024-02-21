@@ -68,7 +68,8 @@ extension DetailTodoListViewController {
         var actionList: [UIAction] = []
         for i in Todo.allCases {
             let action = UIAction(title: "\(i.displayString) 순으로 보기") { _ in
-                self.dataList = self.todoRepository.fetchSortColumn(table: self.dataList, i, ascending: true)
+                let data = self.todoRepository.fetchFilterTodoList(navTitleText: self.mainView.navTitle.text!)
+                self.dataList = self.todoRepository.fetchSortColumn(table: data, i, ascending: true)
                 self.mainView.tableView.reloadData()
             }
             
@@ -76,7 +77,8 @@ extension DetailTodoListViewController {
         }
         
         let action = UIAction(title: "우선순위", subtitle: "낮음") { _ in
-            self.dataList = self.todoRepository.fetchFilterRowPriority(table: self.dataList)
+            let data = self.todoRepository.fetchFilterTodoList(navTitleText: self.mainView.navTitle.text!)
+            self.dataList = self.todoRepository.fetchFilterRowPriority(table: data)
             self.mainView.tableView.reloadData()
         }
         
